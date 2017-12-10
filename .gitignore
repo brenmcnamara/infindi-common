@@ -1,6 +1,3 @@
-# Build
-build
-
 # Environment variables and credentials
 .env
 firebase-service-cert.json
