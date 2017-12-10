@@ -32,6 +32,7 @@ export type LoginPayload = {|
   +firebaseUser: Firebase$User,
   +idToken: string,
   +userInfo: UserInfo,
+  +userMetrics: UserMetrics,
 |};
 
 /**
