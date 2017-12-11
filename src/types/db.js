@@ -61,10 +61,14 @@ export type UserAccess = ModelStub<'UserAccess'> & {|
   +canAddAccount: boolean,
 |};
 
-export type UserMetrics = ModelStub<'UserMetrics'> & {|
+/**
+ * Important metrics we keep track of for the user. These are used to provide
+ * and gain more insight on the User's finances.
+ */
+export type UserMetrics = ModelStub<'UserMetrics'> & {
   +netWorth: Dollars | null,
   +savingsRate: ZeroToOneInclusive | null,
-|};
+};
 
 /**
  * A session of the user using the product. This includes information about
