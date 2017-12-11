@@ -2,7 +2,7 @@
   "name": "common",
   "version": "1.0.0",
   "description": "",
-  "main": "build/index.js",
+  "main": "index.js",
   "scripts": {
     "build": "babel src --out-dir build"
   },
