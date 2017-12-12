@@ -128,6 +128,7 @@ export type PlaidCredentials = ModelStub<'PlaidCredentials'> & {
 export type Account = ModelStub<'Account'> & {
   +alias: ?number,
   +balance: Dollars,
+  +credentialsRef: Pointer<'PlaidCredentials'>,
   +name: string,
   +sourceOfTruth: {|
     +type: 'PLAID',
