@@ -1,6 +1,7 @@
 /* @flow */
 
 import type {
+  Device,
   Dollars,
   Fuzzy,
   ID,
@@ -86,12 +87,12 @@ export type UserMetrics = ModelStub<'UserMetrics'> & {
  * we can detect security anonolies like: logging in from a new device,
  * logging in simultaneously in multiple places, etc...
  */
-export type UserSession = ModelStub<'UserSession'> & {||};
-
-/**
- * TODO: Add some documentation here.
- */
-export type UserDebugLogs = ModelStub<'UserDebugLogs'> & {||};
+export type UserSession = ModelStub<'UserSession'> & {
+  +device: Device,
+  +sessionID: ID,
+  +status: 'OPEN' | 'CLOSED' | 'NON_RESPONSIVE',
+  +timeout: Seconds,
+};
 
 /**
  * A users financial goal, serialized into a descriptive object. A financial

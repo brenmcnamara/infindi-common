@@ -42,3 +42,13 @@ export type Location = {|
 |};
 
 export type ZeroToOneInclusive = number;
+
+export type IphoneDevice = {|
+  appBuildNumber: number,
+  appVersion: string,
+  bundleIdentifier: string,
+  deviceID: ID,
+  osVersion: string,
+|};
+
+export type Device = IphoneDevice;
