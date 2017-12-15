@@ -92,6 +92,7 @@ export type UserSession = ModelStub<'UserSession'> & {
   +sessionID: ID,
   +status: 'OPEN' | 'CLOSED' | 'NON_RESPONSIVE',
   +timeout: Seconds,
+  +userRef: Pointer<'User'>,
 };
 
 /**
