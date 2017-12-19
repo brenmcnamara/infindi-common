@@ -107,6 +107,19 @@ export type FinancialGoal$SaveForRetirement = ModelStub<'FinancialGoal'> & {|
   +goalType: 'SAVE_FOR_RETIREMENT',
 |};
 
+// TODO: May want to add the job request ref to the running download.
+export type PlaidDownloadStatus =
+  | {|
+      +type: 'NOT_DOWNLOADED',
+    |}
+  | {|
+      +type: 'RUNNING',
+    |}
+  | {|
+      +downloadedAt: Date,
+      +type: 'COMPLETE',
+    |};
+
 /**
  * A users credentials for plaid. These credentials allow a user to access
  * their plaid items given the relevant sandbox. Each credential is for a
@@ -118,6 +131,7 @@ export type FinancialGoal$SaveForRetirement = ModelStub<'FinancialGoal'> & {|
  */
 export type PlaidCredentials = ModelStub<'PlaidCredentials'> & {
   +accessToken: string,
+  +downloadStatus: PlaidDownloadStatus,
   +environment: 'sandbox' | 'development' | 'production',
   +itemID: string,
   +metadata: Object,
