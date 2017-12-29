@@ -1,0 +1,3 @@
+# React native is recursively transpiling all modules with a babelrc defined.
+# Need to remove babelrc to make sure that we are not transpiling this module.
+.babelrc
