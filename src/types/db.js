@@ -145,6 +145,7 @@ export type Account = ModelStub<'Account'> & {
   +alias: ?number,
   +balance: Dollars,
   +credentialsRef: Pointer<'PlaidCredentials'>,
+  +institutionName: string,
   +name: string,
   +sourceOfTruth: {|
     +type: 'PLAID',
