@@ -7,7 +7,7 @@
 // -----------------------------------------------------------------------------
 
 // https://rnfirebase.io/docs/v3.1.*/auth/reference/auth#signInWithEmailAndPassword
-export type Firebase$SignInErrorCode =
+export type SignInErrorCode =
   | 'auth/invalid-email'
   | 'auth/user-disabled'
   | 'auth/user-not-found'
@@ -15,7 +15,7 @@ export type Firebase$SignInErrorCode =
 
 // TODO: Could not find documentation on firebase logout error codes, should
 // investigate this further.
-export type Firebase$SignOutErrorCode = 'auth/no-current-user' | string;
+export type SignOutErrorCode = 'auth/no-current-user' | string;
 
 // TODO: Link Docs
 export type PasswordResetInitializeErrorCode =
@@ -53,12 +53,12 @@ export type CheckingVerificationErrorCode =
   | 'auth/user-not-disabled';
 
 // https://rnfirebase.io/docs/v3.1.*/auth/reference/AuthCredential
-export type Firebase$AuthCredential = {|
+export type AuthCredential = {|
   +providerId: string,
 |};
 
 // https://rnfirebase.io/docs/v3.1.*/auth/reference/UserInfo
-export type Firebase$UserInfo = {|
+export type UserInfo = {|
   +displayName: ?string,
 
   +email: ?string,
@@ -73,7 +73,7 @@ export type Firebase$UserInfo = {|
 |};
 
 // https://rnfirebase.io/docs/v3.1.*/auth/reference/User
-export type Firebase$User = {|
+export type User = {|
   +delete: () => Promise<void>,
 
   +displayName: string,
@@ -86,17 +86,13 @@ export type Firebase$User = {|
 
   +isAnonymous: bool,
 
-  +linkWithCredential: (
-    credential: Firebase$AuthCredential,
-  ) => Promise<Firebase$User>,
+  +linkWithCredential: (credential: AuthCredential) => Promise<User>,
 
-  +providerData: Array<Firebase$UserInfo>,
+  +providerData: Array<UserInfo>,
 
   +providerId: string,
 
-  +reauthenticateWithCredential: (
-    credential: Firebase$AuthCredential,
-  ) => Promise<void>,
+  +reauthenticateWithCredential: (credential: AuthCredential) => Promise<void>,
 
   +refreshToken: string,
 
@@ -122,14 +118,12 @@ export type Firebase$User = {|
 // -----------------------------------------------------------------------------
 
 // https://rnfirebase.io/docs/v3.1.*/database/reference/DataSnapshot
-export type Firebase$DataSnapshot<T> = {|
-  +child: (ref: Firebase$Reference) => Firebase$DataSnapshot<*>,
+export type DataSnapshot<T> = {|
+  +child: (ref: Reference) => DataSnapshot<*>,
 
   +exists: () => bool,
 
-  +forEach: (
-    callback: (childSnapshot: Firebase$DataSnapshot<*>) => mixed,
-  ) => bool,
+  +forEach: (callback: (childSnapshot: DataSnapshot<*>) => mixed) => bool,
 
   +getPriority: () => string | number | null,
 
@@ -141,7 +135,7 @@ export type Firebase$DataSnapshot<T> = {|
 
   +numChildren: () => number,
 
-  +ref: Firebase$Reference,
+  +ref: Reference,
 
   +toJSON: () => Object,
 
@@ -149,9 +143,9 @@ export type Firebase$DataSnapshot<T> = {|
 |};
 
 // TODO: https://rnfirebase.io/docs/v3.1.*/database/reference/Reference
-export type Firebase$Reference = Object;
+export type Reference = Object;
 
-export type Firebase$TransactionResult<T> = {|
+export type TransactionResult<T> = {|
   +committed: bool,
-  +snapshot: ?Firebase$DataSnapshot<T>,
+  +snapshot: ?DataSnapshot<T>,
 |};

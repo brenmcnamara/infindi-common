@@ -46,9 +46,6 @@
     "flowtype": {
       "onlyFilesWithFlowAnnotation": true
     },
-    "import/ignore": ["node_modules"],
-    "import/resolver": {
-      "babel-module": {}
-    }
+    "import/ignore": ["node_modules"]
   }
 }
