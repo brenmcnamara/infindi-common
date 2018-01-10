@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.getStatusForErrorCode = getStatusForErrorCode;
 exports.getErrorForPlaidError = getErrorForPlaidError;
 
-require('./types/plaid');
+require('../types/plaid');
 
 // Infindi
 const ERROR_CODE_400 = ['auth/invalid-email', 'infindi/bad-request'];

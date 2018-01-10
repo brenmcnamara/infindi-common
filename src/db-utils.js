@@ -2,7 +2,7 @@
 
 import uuid from 'uuid/v4';
 
-import type { ModelStub } from './types/core';
+import type { ModelStub } from '../types/core';
 
 /**
  * Creates the core properties of a model stub. Properties then must be added

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "babel src --out-dir build"
+    "build": "babel src --out-dir build && node scripts/gen-flow-files"
   },
   "author": "",
   "license": "ISC",
