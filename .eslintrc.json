@@ -35,7 +35,6 @@
     "flowtype/union-intersection-spacing": [2, "always"],
     "flowtype/use-flow-type": 1,
     "flowtype/valid-syntax": 1,
-    "max-len": ["error", 100],
     "no-console": 1,
     "no-unused-vars": ["error", { "args": "none" }],
     "react/jsx-uses-react": "error",

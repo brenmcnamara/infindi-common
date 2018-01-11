@@ -1,6 +1,7 @@
 /* @flow */
 
 import Config from '../config';
+import QueryBuilder from './_QueryBuilder';
 
 import type { Dollars, ModelStub, ZeroToOneInclusive } from '../../types/core';
 
@@ -13,24 +14,12 @@ export type UserMetrics = ModelStub<'UserMetrics'> & {
   +savingsRate: ZeroToOneInclusive | null,
 };
 
-/**
- * Generate the user metrics of the logged in user. Null if no user is logged
- * in.
- */
-export function genUserMetrics(): Promise<UserMetrics | null> {
-  return Promise.resolve()
-    .then(() => {
-      const { currentUser } = Config.getFirebase().auth();
-      if (!currentUser) {
-        return null;
-      }
-      return Config.getFirebase()
-        .firestore()
-        .collection('UserMetrics')
-        .doc(currentUser.uid)
-        .get();
-    })
-    .then(document => {
-      return document && document.exists ? document.data() : null;
-    });
+export function genFetchUserMetric(): Promise<UserMetrics | null> {
+  return Promise.resolve().then(() => {
+    const { currentUser } = Config.getFirebase().auth();
+    if (!currentUser) {
+      return null;
+    }
+    return QueryBuilder.SingleDoc.fetch('UserMetrics')(currentUser.uid);
+  });
 }

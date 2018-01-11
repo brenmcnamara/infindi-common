@@ -1,6 +1,6 @@
 /* @flow */
 
-import { type ErrorResponse as PlaidErrorResponse } from '../types/plaid';
+import type { ErrorResponse as PlaidErrorResponse } from '../types/plaid';
 
 export type InfindiError = { errorCode: string, errorMessage: string };
 

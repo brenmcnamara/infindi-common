@@ -1,6 +1,7 @@
 /* @flow */
 
 import Config from '../config';
+import QueryBuilder from './_QueryBuilder';
 
 import type { Fuzzy, ModelStub, YearMonthDay } from '../../types/core';
 
@@ -20,24 +21,12 @@ export type UserInfo = ModelStub<'UserInfo'> & {|
   +lastName: string,
 |};
 
-/**
- * Generate the user info of the logged in user. Null if no user is logged
- * in.
- */
-export function genUserInfo(): Promise<Object | null> {
-  return Promise.resolve()
-    .then(() => {
-      const { currentUser } = Config.getFirebase().auth();
-      if (!currentUser) {
-        return null;
-      }
-      return Config.getFirebase()
-        .firestore()
-        .collection('UserInfo')
-        .doc(currentUser.uid)
-        .get();
-    })
-    .then(document => {
-      return document && document.exists ? document.data() : null;
-    });
+export function genFetchUserInfo(): Promise<UserInfo | null> {
+  return Promise.resolve().then(() => {
+    const { currentUser } = Config.getFirebase().auth();
+    if (!currentUser) {
+      return null;
+    }
+    return QueryBuilder.SingleDoc.fetch('UserInfo')(currentUser.uid);
+  });
 }
