@@ -10,7 +10,7 @@ console.log('Writing model files...');
 
 for (let file of modelFiles) {
   const oldFile = path.join(__dirname, '../src/models', file);
-  const newFile = path.join(__dirname, '../build/models', `${file}.flow`);
+  const newFile = path.join(__dirname, '../lib/models', `${file}.flow`);
   const buffer = fs.readFileSync(oldFile);
   fs.writeFileSync(newFile, buffer);
 }

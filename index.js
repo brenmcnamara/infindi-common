@@ -1,6 +1,6 @@
-const DBUtils = require('./build/db-utils');
-const ErrorUtils = require('./build/error-utils');
-const ObjUtils = require('./build/obj-utils');
+const DBUtils = require('./lib/db-utils');
+const ErrorUtils = require('./lib/error-utils');
+const ObjUtils = require('./lib/obj-utils');
 
 module.exports = {
   DBUtils,
