@@ -1,8 +1,5 @@
 /* @flow */
 
-import Config from '../config';
-import QueryBuilder from './_QueryBuilder';
-
 import type { Fuzzy, ModelStub, YearMonthDay } from '../../types/core';
 
 /**
@@ -20,13 +17,3 @@ export type UserInfo = ModelStub<'UserInfo'> & {|
   +isTestUser: bool,
   +lastName: string,
 |};
-
-export function genFetchUserInfo(): Promise<UserInfo | null> {
-  return Promise.resolve().then(() => {
-    const { currentUser } = Config.getFirebase().auth();
-    if (!currentUser) {
-      return null;
-    }
-    return QueryBuilder.SingleDoc.fetch('UserInfo')(currentUser.uid);
-  });
-}

@@ -31,9 +31,19 @@ function getFirebaseAdmin() {
   return _FirebaseAdmin;
 }
 
+function getFirebaseAdminOrClient(): Object {
+  invariant(
+    _isInitialized && (_Firebase || _FirebaseAdmin),
+    'Either firebase or firebase admin needs to be configured',
+  );
+  // $FlowFixMe - Cannot be null
+  return _FirebaseAdmin || _Firebase;
+}
+
 export default {
   getFirebase,
   getFirebaseAdmin,
+  getFirebaseAdminOrClient,
   initialize,
   initializeAsAdmin,
 };

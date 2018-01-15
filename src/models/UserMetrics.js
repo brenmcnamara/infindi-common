@@ -1,8 +1,5 @@
 /* @flow */
 
-import Config from '../config';
-import QueryBuilder from './_QueryBuilder';
-
 import type { Dollars, ModelStub, ZeroToOneInclusive } from '../../types/core';
 
 /**
@@ -13,13 +10,3 @@ export type UserMetrics = ModelStub<'UserMetrics'> & {
   +netWorth: Dollars | null,
   +savingsRate: ZeroToOneInclusive | null,
 };
-
-export function genFetchUserMetric(): Promise<UserMetrics | null> {
-  return Promise.resolve().then(() => {
-    const { currentUser } = Config.getFirebase().auth();
-    if (!currentUser) {
-      return null;
-    }
-    return QueryBuilder.SingleDoc.fetch('UserMetrics')(currentUser.uid);
-  });
-}

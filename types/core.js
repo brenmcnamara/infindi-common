@@ -29,6 +29,8 @@ export type Fuzzy<T> = {
   value: T,
 };
 
+export type JSONMap<K: string, V> = { [key: K]: V };
+
 export type Dollars = number;
 
 export type Location = {|
