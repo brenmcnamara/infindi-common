@@ -4,26 +4,20 @@ import Config from '../config';
 
 import { createModelStub } from '../db-utils';
 
-import type { ID, ModelStub, Pointer } from '../../types/core';
+import type { ID, ModelStub } from '../../types/core';
 import type { Provider as RawProvider } from '../../types/yodlee';
 
 export type Provider = ModelStub<'YodleeProvider'> & {
   isDeprecated: bool,
   raw: RawProvider,
-  userRef: Pointer<'User'>,
 };
 
-export function createProvider(raw: RawProvider, userID: ID): Provider {
+export function createProvider(raw: RawProvider): Provider {
   return {
     ...createModelStub('YodleeProvider'),
     id: String(raw.id), // TODO: In the future, this will change to be type string.
     isDeprecated: false,
     raw,
-    userRef: {
-      pointerType: 'User',
-      type: 'POINTER',
-      refID: userID,
-    },
   };
 }
 
