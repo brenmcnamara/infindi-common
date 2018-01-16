@@ -1,6 +1,6 @@
 /* @flow */
 
-import Config from '../config';
+import { getFirebase } from '../config';
 
 import type { User as FirebaseUser } from '../../types/firebase';
 import type { UserInfo } from './UserInfo';
@@ -25,7 +25,7 @@ export function genLogin(
   email: string,
   password: string,
 ): Promise<FirebaseUser | null> {
-  return Config.getFirebase()
+  return getFirebase()
     .auth()
     .signInWithEmailAndPassword(email, password);
 }
@@ -34,7 +34,7 @@ export function genLogin(
  * Logout the current user.
  */
 export function genLogout(): Promise<void> {
-  return Config.getFirebase()
+  return getFirebase()
     .auth()
     .signOut();
 }

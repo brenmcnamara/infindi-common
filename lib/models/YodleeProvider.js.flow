@@ -1,8 +1,7 @@
 /* @flow */
 
-import Config from '../config';
-
 import { createModelStub } from '../db-utils';
+import { getFirebaseAdmin, getFirebaseAdminOrClient } from '../config';
 
 import type { ID, ModelStub } from '../../types/core';
 import type { Provider as RawProvider } from '../../types/yodlee';
@@ -22,7 +21,7 @@ export function createProvider(raw: RawProvider): Provider {
 }
 
 export function genFetchProvider(id: ID): Promise<Provider | null> {
-  return Config.getFirebaseAdminOrClient()
+  return getFirebaseAdminOrClient()
     .firestore()
     .collection('YodleeProviders')
     .doc(id)
@@ -31,13 +30,40 @@ export function genFetchProvider(id: ID): Promise<Provider | null> {
 }
 
 export function genCreateProvider(provider: Provider): Promise<void> {
-  return Config.getFirebaseAdmin()
+  return getFirebaseAdmin()
     .collection('YodleeProviders')
     .set(provider.id, provider);
 }
 
 export function genUpdateProvider(provider: Provider): Promise<void> {
-  return Config.getFirebaseAdmin()
+  return getFirebaseAdmin()
     .collection('YodleeProviders')
     .update(provider.id, provider);
+}
+
+export function genUpsertProvider(provider: Provider): Promise<void> {
+  return getFirebaseAdmin()
+    .collection('YodleeProviders')
+    .set(provider.id, provider);
+}
+
+const BATCH_LIMIT = 100;
+
+export function genUpsertProviders(providers: Array<Provider>): Promise<mixed> {
+  return Promise.resolve().then(() => {
+    const db = getFirebaseAdmin().firestore();
+    let batchCount = 0;
+    let currentBatch = db.batch();
+    const batches = [currentBatch];
+    providers.forEach(p => {
+      const ref = db.collection('YodleeProviders').doc(p.id);
+      currentBatch.set(ref, p);
+      ++batchCount;
+      if (batchCount > BATCH_LIMIT) {
+        currentBatch = db.batch();
+        batches.push(currentBatch);
+      }
+    });
+    return Promise.all(batches.map(b => b.commit()));
+  });
 }
