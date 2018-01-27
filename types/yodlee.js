@@ -76,12 +76,14 @@ export type User = {|
 |};
 
 export type Provider = {|
+  +additionalDataSet?: any,
   +authType: 'OAUTH' | 'CREDENTIALS' | 'MFA_CREDENTIALS',
-  +baseURL: string,
+  +baseUrl: string,
   +containerAttributes: { [name: ContainerAllCaps]: ContainerAttribute },
   +containerNames: Array<Container>,
+  +countryISOCode: 'US' | string,
   +favicon: string,
-  +forgetPasswordUrl: string,
+  +forgetPasswordUrl?: string,
   +id: Long,
   +isAutoRefreshEnabled: bool,
   +languageISOCode: string,
