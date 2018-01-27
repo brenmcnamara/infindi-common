@@ -16,6 +16,18 @@ export type Container =
   | 'reward'
   | 'bill';
 
+export type ContainerAllCaps =
+  | 'BANK'
+  | 'CREDITCARD'
+  | 'INVESTMENT'
+  | 'INSURANCE'
+  | 'LOAN'
+  | 'OTHERASSETS'
+  | 'OTHERLIABILITIES'
+  | 'REALESTATE'
+  | 'REWARD'
+  | 'BILL';
+
 export type ContainerAttribute = {|
   +numberOfTransactionDays: number,
 |};
@@ -66,7 +78,7 @@ export type User = {|
 export type Provider = {|
   +authType: 'OAUTH' | 'CREDENTIALS' | 'MFA_CREDENTIALS',
   +baseURL: string,
-  +containerAttributes: { [name: Container]: ContainerAttribute },
+  +containerAttributes: { [name: ContainerAllCaps]: ContainerAttribute },
   +containerNames: Array<Container>,
   +favicon: string,
   +forgetPasswordUrl: string,
@@ -74,9 +86,9 @@ export type Provider = {|
   +isAutoRefreshEnabled: bool,
   +languageISOCode: string,
   +lastModified: DateTimeString,
-  +loginURL: string,
+  +loginUrl: string,
   +logo: string,
-  +mfaType: string,
+  +mfaType?: string,
   +name: string,
   +oAuthSite: bool,
   +PRIORITY: 'SUGGESTED' | 'COBRAND' | 'POPULAR' | 'SEARCH',
