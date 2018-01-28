@@ -158,7 +158,7 @@ export type LoginForm = {|
   +forgetPasswordURL?: string,
   +formType: 'login' | string, // TODO
   +id: Long,
-  +raw: Array<LoginEntry>,
+  +row: Array<LoginEntry>,
 |};
 
 export type LoginEntry = {|
