@@ -171,7 +171,8 @@ export type LoginEntry = {|
     +isOptional: bool,
     +maxLength: number,
     +name: 'LOGIN' | 'PASSWORD' | string, // TODO
-    +type: 'text' | 'password' | string, // TODO
+    // https://developer.yodlee.com/Data_Model/Resource_Provider#fieldType
+    +type: 'text' | 'password' | 'option' | 'checkbox' | 'radio' | 'image',
     +value: string,
     +valueEditable: bool,
   |}>,
