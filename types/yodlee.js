@@ -145,14 +145,31 @@ export type AccountBalance = {|
 |};
 
 export type RefreshInfo = {|
-  +additionalStatus?: string,
+  +additionalStatus?: RefreshInfoAdditionalStatus,
   +lastRefreshed: DateTimeString,
   +lastRefreshAttempt: DateTimeString,
   +nextRefreshScheduled?: DateTimeString,
-  +status: string,
+  +status: RefreshInfoStatus,
   +statusCode: number,
   +statusMessage: string,
 |};
+
+export type RefreshInfoStatus =
+  | 'SUCCESS'
+  | 'FAILED'
+  | 'IN_PROGRESS'
+  | 'PARTIAL_SUCCESS';
+
+export type RefreshInfoAdditionalStatus =
+  | 'LOGIN_IN_PROGRESS'
+  | 'USER_INPUT_REQUIRED'
+  | 'LOGIN_SUCCESS'
+  | 'ACCOUNT_SUMMARY_RETRIEVED'
+  | 'NEVER_INITIATED'
+  | 'LOGIN_FAILED'
+  | 'REQUEST_TIME_OUT'
+  | 'PARTIAL_DATA_RETRIEVED'
+  | 'PARTIAL_DATA_RETRIEVED_REM_SCHED';
 
 export type LoginForm = {|
   +forgetPasswordURL?: string,
