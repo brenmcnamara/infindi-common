@@ -75,7 +75,7 @@ export type User = {|
   |},
 |};
 
-export type Provider = {|
+export type Provider = {
   +additionalDataSet?: any,
   +authType: 'OAUTH' | 'CREDENTIALS' | 'MFA_CREDENTIALS',
   +baseUrl: string,
@@ -96,7 +96,11 @@ export type Provider = {|
   +PRIORITY: 'SUGGESTED' | 'COBRAND' | 'POPULAR' | 'SEARCH',
   +primaryLanguageISOCode: string,
   +status: 'Supported' | 'Beta',
-|};
+};
+
+export type ProviderFull = Provider & {
+  +loginForm: LoginForm,
+};
 
 export type ProviderAccount = {|
   +aggregationSource: 'USER' | 'SYSTEM',
@@ -141,12 +145,34 @@ export type AccountBalance = {|
 |};
 
 export type RefreshInfo = {|
+  +additionalStatus?: string,
   +lastRefreshed: DateTimeString,
   +lastRefreshAttempt: DateTimeString,
-  +nextRefreshScheduled: DateTimeString,
+  +nextRefreshScheduled?: DateTimeString,
   +status: string,
   +statusCode: number,
   +statusMessage: string,
 |};
 
-export type LoginForm = {||};
+export type LoginForm = {|
+  +forgetPasswordURL?: string,
+  +formType: 'login' | string, // TODO
+  +id: Long,
+  +raw: Array<LoginEntry>,
+|};
+
+export type LoginEntry = {|
+  +id: Long,
+  +label: string,
+  +fieldRowChoice: string,
+  +form: string,
+  +field: Array<{|
+    +id: Long,
+    +isOptional: bool,
+    +maxLength: number,
+    +name: 'LOGIN' | 'PASSWORD' | string, // TODO
+    +type: 'text' | 'password' | string, // TODO
+    +value: string,
+    +valueEditable: bool,
+  |}>,
+|};
