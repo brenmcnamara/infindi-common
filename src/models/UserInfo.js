@@ -13,7 +13,7 @@ export type UserInfo = ModelStub<'UserInfo'> & {|
   +currentResidence: Fuzzy<Location>,
   +DOB: YearMonthDay,
   +firstName: string,
-  +gender: ?Fuzzy<'MALE' | 'FEMALE'>,
+  +gender: 'MALE' | 'FEMALE',
   +isTestUser: bool,
   +lastName: string,
 |};
