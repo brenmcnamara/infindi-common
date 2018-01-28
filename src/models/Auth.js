@@ -4,7 +4,6 @@ import { getFirebase } from '../config';
 
 import type { User as FirebaseUser } from '../../types/firebase';
 import type { UserInfo } from './UserInfo';
-import type { UserMetrics } from './UserMetrics';
 
 export type LoginCredentials = {|
   +email: string,
@@ -15,7 +14,6 @@ export type LoginPayload = {|
   +firebaseUser: FirebaseUser,
   +idToken: string,
   +userInfo: UserInfo,
-  +userMetrics: UserMetrics,
 |};
 
 /**
