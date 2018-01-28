@@ -4,14 +4,14 @@ import { createModelStub } from '../db-utils';
 import { getFirebaseAdmin, getFirebaseAdminOrClient } from '../config';
 
 import type { ID, ModelStub } from '../../types/core';
-import type { Provider as RawProvider } from '../../types/yodlee';
+import type { ProviderFull as RawProviderFull } from '../../types/yodlee';
 
 export type Provider = ModelStub<'YodleeProvider'> & {
   isDeprecated: bool,
-  raw: RawProvider,
+  raw: RawProviderFull,
 };
 
-export function createProvider(raw: RawProvider): Provider {
+export function createProvider(raw: RawProviderFull): Provider {
   return {
     ...createModelStub('YodleeProvider'),
     id: String(raw.id), // TODO: In the future, this will change to be type string.
