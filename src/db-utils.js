@@ -2,7 +2,7 @@
 
 import uuid from 'uuid/v4';
 
-import type { ModelStub } from '../types/core';
+import type { ID, ModelStub, Pointer } from '../types/core';
 
 /**
  * Creates the core properties of a model stub. Properties then must be added
@@ -30,5 +30,16 @@ export function updateModelStub<TName: string, TModel: ModelStub<TName>>(
   return {
     ...model,
     updatedAt: now,
+  };
+}
+
+export function createPointer<TType: string>(
+  pointerType: TType,
+  refID: ID,
+): Pointer<TType> {
+  return {
+    pointerType,
+    type: 'POINTER',
+    refID,
   };
 }

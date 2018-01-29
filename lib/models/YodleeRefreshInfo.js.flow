@@ -1,6 +1,6 @@
 /* @flow */
 
-import { createModelStub } from '../db-utils';
+import { createModelStub, createPointer } from '../db-utils';
 import { getFirebaseAdminOrClient } from '../config';
 
 import type { ID, ModelStub, Pointer } from '../../types/core';
@@ -13,6 +13,12 @@ export type YodleeRefreshInfo = ModelStub<'YodleeRefreshInfo'> & {
   +userRef: Pointer<'User'>,
 };
 
+export function getYodleeRefreshInfoCollection() {
+  return getFirebaseAdminOrClient()
+    .firestore()
+    .collection('YodleeRefreshInfo');
+}
+
 export function createRefreshInfo(
   raw: RawRefreshInfo,
   userID: ID,
@@ -22,17 +28,9 @@ export function createRefreshInfo(
   return {
     ...createModelStub('YodleeRefreshInfo'),
     providerAccountID,
-    providerRef: {
-      pointerType: 'YodleeProvider',
-      refID: providerID,
-      type: 'POINTER',
-    },
+    providerRef: createPointer('YodleeProvider', providerID),
     raw,
-    userRef: {
-      pointerType: 'User',
-      refID: userID,
-      type: 'POINTER',
-    },
+    userRef: createPointer('User', userID),
   };
 }
 
@@ -49,9 +47,7 @@ export function updateRefreshInfo(
 }
 
 export function genFetchRefreshInfo(id: ID): Promise<YodleeRefreshInfo | null> {
-  return getFirebaseAdminOrClient()
-    .firestore()
-    .collection('YodleeRefreshInfo')
+  return getYodleeRefreshInfoCollection()
     .doc(id)
     .get()
     .then(doc => (doc.exists ? doc.data() : null));
@@ -60,9 +56,7 @@ export function genFetchRefreshInfo(id: ID): Promise<YodleeRefreshInfo | null> {
 export function genFetchRefreshInfoForUser(
   userID: ID,
 ): Promise<Array<YodleeRefreshInfo>> {
-  return getFirebaseAdminOrClient()
-    .firestore()
-    .collection('YodleeRefreshInfo')
+  return getYodleeRefreshInfoCollection()
     .where('userRef.refID', '==', userID)
     .get()
     .then(snapshot => {
@@ -79,9 +73,7 @@ export function genFetchRefreshInfoForUser(
 export function genCreateRefreshInfo(
   refreshInfo: YodleeRefreshInfo,
 ): Promise<void> {
-  return getFirebaseAdminOrClient()
-    .firestore()
-    .collection('YodleeRefreshInfo')
+  return getYodleeRefreshInfoCollection()
     .doc(refreshInfo.id)
     .set(refreshInfo);
 }
@@ -89,9 +81,7 @@ export function genCreateRefreshInfo(
 export function genUpdateRefreshInfo(
   refreshInfo: YodleeRefreshInfo,
 ): Promise<void> {
-  return getFirebaseAdminOrClient()
-    .firestore()
-    .collection('YodleeRefreshInfo')
+  return getYodleeRefreshInfoCollection()
     .doc(refreshInfo.id)
     .update(refreshInfo);
 }
