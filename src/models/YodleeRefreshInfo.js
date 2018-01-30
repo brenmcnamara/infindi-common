@@ -70,6 +70,21 @@ export function genFetchRefreshInfoForUser(
     });
 }
 
+export function genFetchRefreshInfoForProvider(
+  userID: ID,
+  providerID: ID,
+): Promise<YodleeRefreshInfo | null> {
+  return getYodleeRefreshInfoCollection()
+    .where('userRef.refID', '==', userID)
+    .where('providerRef.refID', '==', providerID)
+    .get()
+    .then(snapshot => {
+      return snapshot.docs.length > 0 && snapshot.docs[0].exists
+        ? snapshot.docs[0].data()
+        : null;
+    });
+}
+
 export function genCreateRefreshInfo(
   refreshInfo: YodleeRefreshInfo,
 ): Promise<void> {
