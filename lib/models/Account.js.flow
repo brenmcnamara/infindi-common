@@ -1,5 +1,7 @@
 /* @flow */
 
+import invariant from 'invariant';
+
 import { createModelStub, createPointer } from '../db-utils';
 import { getFirebaseAdminOrClient } from '../config';
 
@@ -22,9 +24,12 @@ export type AccountSourceOfTruth$Plaid = {|
 |};
 
 export type Account = ModelStub<'Account'> & {
+  +shouldShowUser: bool,
   +sourceOfTruth: AccountSourceOfTruth,
   +userRef: Pointer<'User'>,
 };
+
+export type AccountGroupType = 'AVAILABLE_CASH' | 'SHORT_TERM_DEBT' | 'OTHER';
 
 export function getAccountsCollection() {
   return getFirebaseAdminOrClient()
@@ -38,6 +43,7 @@ export function createAccountFromYodleeAccount(
 ): Account {
   return {
     ...createModelStub('Account'),
+    shouldShowUser: calculateShouldShowUser(yodleeAccount),
     sourceOfTruth: {
       type: 'YODLEE',
       value: yodleeAccount,
@@ -88,12 +94,57 @@ export function genUpsertAccountFromYodleeAccount(
       const updateAccount = {
         ...account,
         updatedAt: now,
+        shouldShowUser: calculateShouldShowUser(yodleeAccount),
         sourceOfTruth: { type: 'YODLEE', value: yodleeAccount },
       };
       return genUpdateAccount(updateAccount);
     });
 }
 
+export function getAccountName(account: Account): string {
+  const { sourceOfTruth } = account;
+  switch (sourceOfTruth.type) {
+    case 'YODLEE': {
+      return sourceOfTruth.value.accountName;
+    }
+
+    default:
+      return invariant(
+        false,
+        'Unrecognized account sourceOfTruth.type %s',
+        sourceOfTruth.type,
+      );
+  }
+}
+
 export function getBalance(account: Account): Dollars {
-  return 0;
+  const { sourceOfTruth } = account;
+  switch (sourceOfTruth.type) {
+    case 'YODLEE': {
+      const { balance } = sourceOfTruth.value;
+      return balance ? balance.amount : 0;
+    }
+
+    default: {
+      return invariant(
+        false,
+        'Unrecognized account sourceOfTruth.type %s',
+        sourceOfTruth.type,
+      );
+    }
+  }
+}
+
+export function getGroupType(account: Account): AccountGroupType {
+  return 'AVAILABLE_CASH';
+}
+
+export function getInstitution(account: Account): string {
+  return 'CHASE';
+}
+
+function calculateShouldShowUser(yodleeAccount: YodleeAccount): bool {
+  return Boolean(
+    yodleeAccount.accountType !== 'REWARD_POINTS' && yodleeAccount.balance,
+  );
 }
