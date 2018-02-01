@@ -29,7 +29,11 @@ export type Account = ModelStub<'Account'> & {
   +userRef: Pointer<'User'>,
 };
 
-export type AccountGroupType = 'AVAILABLE_CASH' | 'SHORT_TERM_DEBT' | 'OTHER';
+export type AccountGroupType =
+  | 'AVAILABLE_CASH'
+  | 'INVESTMENTS'
+  | 'SHORT_TERM_DEBT'
+  | 'OTHER';
 
 export function getAccountsCollection() {
   return getFirebaseAdminOrClient()
@@ -105,7 +109,11 @@ export function getAccountName(account: Account): string {
   const { sourceOfTruth } = account;
   switch (sourceOfTruth.type) {
     case 'YODLEE': {
-      return sourceOfTruth.value.accountName;
+      const raw = sourceOfTruth.value.accountName;
+      return raw
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
     }
 
     default:
@@ -122,7 +130,12 @@ export function getBalance(account: Account): Dollars {
   switch (sourceOfTruth.type) {
     case 'YODLEE': {
       const { balance } = sourceOfTruth.value;
-      return balance ? balance.amount : 0;
+      if (!balance) {
+        return 0;
+      }
+
+      const groupType = getGroupType(account);
+      return groupType === 'SHORT_TERM_DEBT' ? -balance.amount : balance.amount;
     }
 
     default: {
@@ -135,12 +148,45 @@ export function getBalance(account: Account): Dollars {
   }
 }
 
+export function getAccountType(account: Account): string {
+  const { sourceOfTruth } = account;
+  invariant(
+    sourceOfTruth.type === 'YODLEE',
+    'getAccountType only works for YODLEE accounts',
+  );
+  return sourceOfTruth.value.accountType;
+}
+
 export function getGroupType(account: Account): AccountGroupType {
-  return 'AVAILABLE_CASH';
+  const { sourceOfTruth } = account;
+  invariant(
+    sourceOfTruth.type === 'YODLEE',
+    'getGroupType only works for YODLEE accounts',
+  );
+  const container = sourceOfTruth.value.CONTAINER;
+  // const accountType = sourceOfTruth.value.accountType;
+
+  switch (container) {
+    case 'bank':
+      return 'AVAILABLE_CASH';
+
+    case 'investment':
+      return 'INVESTMENTS';
+
+    case 'creditCard':
+      return 'SHORT_TERM_DEBT';
+    default:
+      return 'OTHER';
+  }
 }
 
 export function getInstitution(account: Account): string {
-  return 'CHASE';
+  const { sourceOfTruth } = account;
+  invariant(
+    sourceOfTruth.type === 'YODLEE',
+    'getInstitution only supports accounts of type YODLEE',
+  );
+  return sourceOfTruth.value.providerName.toUpperCase();
 }
 
 function calculateShouldShowUser(yodleeAccount: YodleeAccount): bool {
