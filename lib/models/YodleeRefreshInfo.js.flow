@@ -102,19 +102,16 @@ export function genUpdateRefreshInfo(
 }
 
 export function isPending(refreshInfo: YodleeRefreshInfo): bool {
-  return (
-    refreshInfo.raw.refreshStatus === 'IN_PROGRESS' ||
-    refreshInfo.raw.refreshStatus === 'REFRESH_TRIGGERED'
-  );
+  return !refreshInfo.raw.status || refreshInfo.raw.status === 'IN_PROGRESS';
 }
 
 export function isComplete(refreshInfo: YodleeRefreshInfo): bool {
   return (
-    refreshInfo.raw.refreshStatus === 'SUCCESS' ||
-    refreshInfo.raw.refreshStatus === 'PARTIAL_SUCCESS'
+    refreshInfo.raw.status === 'SUCCESS' ||
+    refreshInfo.raw.status === 'PARTIAL_SUCCESS'
   );
 }
 
 export function didFail(refreshInfo: YodleeRefreshInfo): bool {
-  return refreshInfo.raw.refreshStatus === 'FAILED';
+  return refreshInfo.raw.status === 'FAILED';
 }
