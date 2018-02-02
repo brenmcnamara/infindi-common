@@ -150,7 +150,7 @@ export type RefreshInfo = {|
   +lastRefreshed: DateTimeString,
   +lastRefreshAttempt: DateTimeString,
   +nextRefreshScheduled?: DateTimeString,
-  +status: RefreshInfoStatus,
+  +refreshStatus: RefreshInfoStatus,
   +statusCode: number,
   +statusMessage: string,
 |};
