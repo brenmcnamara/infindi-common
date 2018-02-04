@@ -1,8 +1,11 @@
 /* @flow */
 
+import invariant from 'invariant';
+
 import { createModelStub, createPointer } from '../db-utils';
 import { getFirebaseAdminOrClient } from '../config';
 
+import type { Account } from './Account';
 import type { ID, ModelStub, Pointer } from '../../types/core';
 import type { RefreshInfo as RawRefreshInfo } from '../../types/yodlee';
 
@@ -114,4 +117,16 @@ export function isComplete(refreshInfo: YodleeRefreshInfo): bool {
 
 export function didFail(refreshInfo: YodleeRefreshInfo): bool {
   return refreshInfo.raw.status === 'FAILED';
+}
+
+export function includesAccount(
+  refreshInfo: YodleeRefreshInfo,
+  account: Account,
+): bool {
+  const { sourceOfTruth } = account;
+  invariant(
+    sourceOfTruth.type === 'YODLEE',
+    'includesAccounts only works for YODLEE accounts',
+  );
+  return sourceOfTruth.value.providerId === refreshInfo.providerRef.refID;
 }
