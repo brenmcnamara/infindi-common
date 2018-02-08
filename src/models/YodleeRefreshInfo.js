@@ -7,6 +7,7 @@ import { getFirebaseAdminOrClient } from '../config';
 
 import type { Account } from './Account';
 import type { ID, ModelStub, Pointer } from '../../types/core';
+import type { JobSchedule } from './Job';
 import type { RefreshInfo as RawRefreshInfo } from '../../types/yodlee';
 
 export type YodleeRefreshInfo = ModelStub<'YodleeRefreshInfo'> & {
@@ -15,6 +16,9 @@ export type YodleeRefreshInfo = ModelStub<'YodleeRefreshInfo'> & {
   +raw: RawRefreshInfo,
   +userRef: Pointer<'User'>,
 };
+
+const MILLIS_PER_SECOND = 1000;
+const MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
 
 export function getYodleeRefreshInfoCollection() {
   return getFirebaseAdminOrClient()
@@ -104,8 +108,12 @@ export function genUpdateRefreshInfo(
     .update(refreshInfo);
 }
 
-export function isPending(refreshInfo: YodleeRefreshInfo): bool {
-  return !refreshInfo.raw.status || refreshInfo.raw.status === 'IN_PROGRESS';
+export function isPendingStatus(refreshInfo: YodleeRefreshInfo): bool {
+  return !refreshInfo.raw.status;
+}
+
+export function isInProgress(refreshInfo: YodleeRefreshInfo): bool {
+  return refreshInfo.raw.status === 'IN_PROGRESS';
 }
 
 export function isComplete(refreshInfo: YodleeRefreshInfo): bool {
@@ -129,4 +137,30 @@ export function includesAccount(
     'includesAccounts only works for YODLEE accounts',
   );
   return sourceOfTruth.value.providerId === refreshInfo.providerRef.refID;
+}
+
+export function createRefreshSchedule(
+  refreshInfo: YodleeRefreshInfo,
+): JobSchedule {
+  if (isPendingStatus(refreshInfo)) {
+    return {
+      recurringType: 'ONCE',
+      runAt: new Date(Date.now() + MILLIS_PER_SECOND * 5),
+    };
+  } else if (isInProgress(refreshInfo)) {
+    return {
+      recurringType: 'ONCE',
+      runAt: new Date(Date.now() + MILLIS_PER_SECOND * 30),
+    };
+  } else if (refreshInfo.raw.nextRefreshScheduled) {
+    const runAt = new Date(Date.parse(refreshInfo.raw.nextRefreshScheduled));
+    return {
+      recurringType: 'ONCE',
+      runAt,
+    };
+  }
+  return {
+    recurringType: 'ONCE',
+    runAt: new Date(Date.now() + MILLIS_PER_DAY * 1.0),
+  };
 }
