@@ -108,6 +108,10 @@ export function genUpdateRefreshInfo(
     .update(refreshInfo);
 }
 
+export function getProviderID(refreshInfo: YodleeRefreshInfo): ID {
+  return refreshInfo.providerRef.refID;
+}
+
 export function isPendingStatus(refreshInfo: YodleeRefreshInfo): bool {
   return !refreshInfo.raw.status;
 }
