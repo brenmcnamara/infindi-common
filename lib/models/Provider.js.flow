@@ -10,6 +10,7 @@ import type { ProviderFull as YodleeProviderFull } from '../../types/yodlee';
 
 export type Provider = ModelStub<'Provider'> & {
   isDeprecated: bool,
+  quirkCount: number,
   quirks: Array<string>,
   sourceOfTruth: {|
     +type: 'YODLEE',
@@ -36,6 +37,7 @@ export function createProvider(
     ...createModelStub('Provider'),
     id: getIDFromSourceOfTruth(sourceOfTruth),
     isDeprecated: false,
+    quirkCount: quirks.length,
     quirks,
     sourceOfTruth,
   };
