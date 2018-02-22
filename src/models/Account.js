@@ -24,7 +24,8 @@ export type AccountSourceOfTruth$Plaid = {|
 |};
 
 export type Account = ModelStub<'Account'> & {
-  +shouldShowUser: bool,
+  +canDisplay: bool,
+  +isTestAccount: bool,
   +sourceOfTruth: AccountSourceOfTruth,
   +userRef: Pointer<'User'>,
 };
@@ -44,10 +45,12 @@ export function getAccountsCollection() {
 export function createAccountFromYodleeAccount(
   yodleeAccount: YodleeAccount,
   userID: ID,
+  isTestAccount: bool = false,
 ): Account {
   return {
     ...createModelStub('Account'),
-    shouldShowUser: calculateShouldShowUser(yodleeAccount),
+    canDisplay: calculateCanDisplay(yodleeAccount),
+    isTestAccount,
     sourceOfTruth: {
       type: 'YODLEE',
       value: yodleeAccount,
@@ -97,8 +100,8 @@ export function genUpsertAccountFromYodleeAccount(
       const now = new Date();
       const updateAccount = {
         ...account,
+        canDisplay: calculateCanDisplay(yodleeAccount),
         updatedAt: now,
-        shouldShowUser: calculateShouldShowUser(yodleeAccount),
         sourceOfTruth: { type: 'YODLEE', value: yodleeAccount },
       };
       return genUpdateAccount(updateAccount);
@@ -189,7 +192,7 @@ export function getInstitution(account: Account): string {
   return sourceOfTruth.value.providerName.toUpperCase();
 }
 
-function calculateShouldShowUser(yodleeAccount: YodleeAccount): bool {
+function calculateCanDisplay(yodleeAccount: YodleeAccount): bool {
   return Boolean(
     yodleeAccount.accountType !== 'REWARD_POINTS' && yodleeAccount.balance,
   );
