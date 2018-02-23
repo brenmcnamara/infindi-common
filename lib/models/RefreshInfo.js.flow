@@ -124,6 +124,12 @@ export function genUpdateRefreshInfo(refreshInfo: RefreshInfo): Promise<void> {
     .update(refreshInfo);
 }
 
+export function genDeleteRefreshInfo(id: ID): Promise<void> {
+  return getRefreshInfoCollection()
+    .doc(id)
+    .delete();
+}
+
 export function getProviderID(refreshInfo: RefreshInfo): ID {
   return refreshInfo.providerRef.refID;
 }
