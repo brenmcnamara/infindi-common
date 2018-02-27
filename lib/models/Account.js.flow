@@ -31,15 +31,15 @@ export type Account = ModelStub<'Account'> & {
 };
 
 export type AccountGroupType =
-  | 'CHARITY'
   | 'AVAILABLE_CASH'
-  | 'SHORT_TERM_INVESTMENTS'
-  | 'LONG_TERM_INVESTMENTS'
+  | 'CHARITY'
+  | 'CREDIT_CARD_DEBT'
+  | 'DEBT'
+  | 'LIQUID_INVESTMENTS'
+  | 'NON_LIQUID_INVESTMENTS'
+  | 'OTHER'
   | 'RETIREMENT'
-  | 'SHORT_TERM_DEBT'
-  | 'LONG_TERM_DEBT'
-  | 'REWARDS'
-  | 'OTHER';
+  | 'REWARDS';
 
 export function getAccountsCollection() {
   return getFirebaseAdminOrClient()
@@ -175,9 +175,9 @@ export function getGroupType(account: Account): AccountGroupType {
   const accountType = sourceOfTruth.value.accountType;
 
   if (container === 'creditCard' || container === 'bill') {
-    return 'SHORT_TERM_DEBT';
+    return 'CREDIT_CARD_DEBT';
   } else if (container === 'loan' && accountType === 'OTHER') {
-    return 'LONG_TERM_DEBT';
+    return 'DEBT';
   } else if (container === 'rewards') {
     return 'REWARDS';
   }
@@ -199,7 +199,7 @@ export function getGroupType(account: Account): AccountGroupType {
     case 'MONEY_MARKET_ACCOUNT':
     case 'PRECIOUS_METAL_ACCOUNT':
     case 'TAX_FREE_SAVINGS_ACCOUNT':
-      return 'SHORT_TERM_INVESTMENTS';
+      return 'LIQUID_INVESTMENTS';
 
     case '529_PLAN':
     case 'ADMINISTRATOR':
@@ -275,7 +275,7 @@ export function getGroupType(account: Account): AccountGroupType {
     case 'UNIFORM_TRANSFER_TO_MINORS_ACT_UTMA':
     case 'UTMA':
     case 'VARIABLE_ANNUITY':
-      return 'LONG_TERM_INVESTMENTS';
+      return 'NON_LIQUID_INVESTMENTS';
 
     case '401A':
     case '401K':
@@ -333,7 +333,7 @@ export function getGroupType(account: Account): AccountGroupType {
     case 'BROKERAGE_MARGIN_OPTION':
     case 'HOME_EQUITY_LINE_OF_CREDIT':
     case 'LINE_OF_CREDIT':
-      return 'SHORT_TERM_DEBT';
+      return 'CREDIT_CARD_DEBT';
 
     case 'AUTO_LOAN':
     case 'HOME_LOAN':
@@ -341,7 +341,7 @@ export function getGroupType(account: Account): AccountGroupType {
     case 'MORTGAGE':
     case 'PERSONAL_LOAN':
     case 'STUDENT_LOAN':
-      return 'LONG_TERM_DEBT';
+      return 'DEBT';
 
     case 'CHARITABLE_GIFT_ACCOUNT':
     case 'CHURCH':
