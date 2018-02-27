@@ -181,13 +181,22 @@ export function createRefreshSchedule(refreshInfo: RefreshInfo): JobSchedule {
       recurringType: 'ONCE',
       runAt: new Date(Date.now() + MILLIS_PER_SECOND * 30),
     };
-  } else if (yodleeRefreshInfo.nextRefreshScheduled) {
-    const runAt = new Date(Date.parse(yodleeRefreshInfo.nextRefreshScheduled));
+  }
+
+  if (yodleeRefreshInfo.nextRefreshScheduled) {
+    const runAtUpperBound = new Date(
+      Date.parse(yodleeRefreshInfo.nextRefreshScheduled),
+    );
+    const runAtOneDay = new Date(Date.now() + MILLIS_PER_DAY * 1.0);
     return {
       recurringType: 'ONCE',
-      runAt,
+      runAt:
+        runAtUpperBound.getTime() < runAtOneDay.getTime()
+          ? runAtUpperBound
+          : runAtOneDay,
     };
   }
+
   return {
     recurringType: 'ONCE',
     runAt: new Date(Date.now() + MILLIS_PER_DAY * 1.0),
