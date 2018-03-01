@@ -2,7 +2,8 @@
 
 import invariant from 'invariant';
 
-import { createModelStub, createPointer } from '../db-utils';
+import { createModelStub, createPointer, updateModelStub } from '../db-utils';
+import { genFetchRefreshInfo } from './RefreshInfo';
 import { getFirebaseAdminOrClient } from '../config';
 
 import type { Account as PlaidAccount } from '../../types/plaid';
@@ -64,11 +65,43 @@ export function createAccountFromYodleeAccount(
   };
 }
 
+export function updateAccountFromYodleeAccount(
+  account: Account,
+  yodleeAccount: YodleeAccount,
+): Account {
+  // $FlowFixMe - Ignore this for now.
+  return {
+    ...updateModelStub(account),
+    sourceOfTruth: {
+      type: 'YODLEE',
+      value: yodleeAccount,
+    },
+  };
+}
+
 export function genFetchAccount(accountID: ID): Promise<Account | null> {
   return getAccountsCollection()
     .doc(accountID)
     .get()
     .then(doc => (doc.exists ? doc.data() : null));
+}
+
+export async function genFetchAccountsForRefreshInfo(
+  refreshInfoID: ID,
+): Promise<Array<Account>> {
+  const refreshInfo = await genFetchRefreshInfo(refreshInfoID);
+  if (!refreshInfo) {
+    return [];
+  }
+  const snapshot = await getAccountsCollection()
+    .where(
+      'sourceOfTruth.value.providerId',
+      '==',
+      refreshInfo.providerRef.refID,
+    )
+    .get();
+
+  return snapshot.docs.filter(doc => doc.exists).map(doc => doc.data());
 }
 
 export function genCreateAccount(account: Account): Promise<void> {
