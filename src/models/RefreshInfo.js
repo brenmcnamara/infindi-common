@@ -7,7 +7,6 @@ import { getFirebaseAdminOrClient } from '../config';
 
 import type { Account } from './Account';
 import type { ID, ModelStub, Pointer } from '../../types/core';
-import type { JobSchedule } from './Job';
 import type { RefreshInfo as YodleeRefreshInfo } from '../../types/yodlee';
 
 export type RefreshInfo = ModelStub<'RefreshInfo'> & {
@@ -21,9 +20,6 @@ export type SourceOfTruth = {|
   +providerAccountID: ID,
   +value: YodleeRefreshInfo,
 |};
-
-const MILLIS_PER_SECOND = 1000;
-const MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
 
 export function getRefreshInfoCollection() {
   return getFirebaseAdminOrClient()
@@ -167,40 +163,6 @@ export function includesAccount(
     'includesAccounts only works for YODLEE accounts',
   );
   return sourceOfTruth.value.providerId === refreshInfo.providerRef.refID;
-}
-
-export function createRefreshSchedule(refreshInfo: RefreshInfo): JobSchedule {
-  const yodleeRefreshInfo = getYodleeRefreshInfo(refreshInfo);
-  if (isPendingStatus(refreshInfo)) {
-    return {
-      recurringType: 'ONCE',
-      runAt: new Date(Date.now() + MILLIS_PER_SECOND * 5),
-    };
-  } else if (isInProgress(refreshInfo)) {
-    return {
-      recurringType: 'ONCE',
-      runAt: new Date(Date.now() + MILLIS_PER_SECOND * 30),
-    };
-  }
-
-  if (yodleeRefreshInfo.nextRefreshScheduled) {
-    const runAtUpperBound = new Date(
-      Date.parse(yodleeRefreshInfo.nextRefreshScheduled),
-    );
-    const runAtOneDay = new Date(Date.now() + MILLIS_PER_DAY * 1.0);
-    return {
-      recurringType: 'ONCE',
-      runAt:
-        runAtUpperBound.getTime() < runAtOneDay.getTime()
-          ? runAtUpperBound
-          : runAtOneDay,
-    };
-  }
-
-  return {
-    recurringType: 'ONCE',
-    runAt: new Date(Date.now() + MILLIS_PER_DAY * 1.0),
-  };
 }
 
 function getYodleeRefreshInfo(refreshInfo: RefreshInfo): YodleeRefreshInfo {
