@@ -3,7 +3,6 @@
 import invariant from 'invariant';
 
 import { createModelStub, createPointer, updateModelStub } from '../db-utils';
-import { genFetchRefreshInfo } from './RefreshInfo';
 import { getFirebaseAdminOrClient } from '../config';
 
 import type { Account as PlaidAccount } from '../../types/plaid';
@@ -25,6 +24,7 @@ export type AccountSourceOfTruth$Plaid = {|
 |};
 
 export type Account = ModelStub<'Account'> & {
+  +accountLinkRef: Pointer<'AccountLink'>,
   +canDisplay: bool,
   +isTestAccount: bool,
   +sourceOfTruth: AccountSourceOfTruth,
@@ -48,13 +48,15 @@ export function getAccountsCollection() {
     .collection('Accounts');
 }
 
-export function createAccountFromYodleeAccount(
+export function createAccountYodlee(
   yodleeAccount: YodleeAccount,
+  accountLinkID: ID,
   userID: ID,
   isTestAccount: bool = false,
 ): Account {
   return {
     ...createModelStub('Account'),
+    accountLinkRef: createPointer('AccountLink', accountLinkID),
     canDisplay: calculateCanDisplay(yodleeAccount),
     isTestAccount,
     sourceOfTruth: {
@@ -65,7 +67,7 @@ export function createAccountFromYodleeAccount(
   };
 }
 
-export function updateAccountFromYodleeAccount(
+export function updateAccountYodlee(
   account: Account,
   yodleeAccount: YodleeAccount,
 ): Account {
@@ -86,22 +88,15 @@ export function genFetchAccount(accountID: ID): Promise<Account | null> {
     .then(doc => (doc.exists ? doc.data() : null));
 }
 
-export async function genFetchAccountsForRefreshInfo(
-  refreshInfoID: ID,
+export function genFetchAccountsForAccountLink(
+  accountLinkID: ID,
 ): Promise<Array<Account>> {
-  const refreshInfo = await genFetchRefreshInfo(refreshInfoID);
-  if (!refreshInfo) {
-    return [];
-  }
-  const snapshot = await getAccountsCollection()
-    .where(
-      'sourceOfTruth.value.providerId',
-      '==',
-      refreshInfo.providerRef.refID,
-    )
-    .get();
-
-  return snapshot.docs.filter(doc => doc.exists).map(doc => doc.data());
+  return getAccountsCollection()
+    .where('accountLinkRef.refID', '==', accountLinkID)
+    .get()
+    .then(snapshot =>
+      snapshot.docs.filter(doc => doc.exists).map(doc => doc.data()),
+    );
 }
 
 export function genCreateAccount(account: Account): Promise<void> {
@@ -114,36 +109,6 @@ export function genUpdateAccount(account: Account): Promise<void> {
   return getAccountsCollection()
     .doc(account.id)
     .update(account);
-}
-
-export function genUpsertAccountFromYodleeAccount(
-  yodleeAccount: YodleeAccount,
-  userID: ID,
-): Promise<void> {
-  return getAccountsCollection()
-    .where('sourceOfTruth.type', '==', 'YODLEE')
-    .where('sourceOfTruth.value.id', '==', yodleeAccount.id)
-    .get()
-    .then(snapshot => {
-      const account =
-        snapshot.docs.length > 0 && snapshot.docs[0].exists
-          ? snapshot.docs[0].data()
-          : null;
-      if (!account) {
-        // No account. Create a new one.
-        const account = createAccountFromYodleeAccount(yodleeAccount, userID);
-        return genCreateAccount(account);
-      }
-      // Update the existing account.
-      const now = new Date();
-      const updateAccount = {
-        ...account,
-        canDisplay: calculateCanDisplay(yodleeAccount),
-        updatedAt: now,
-        sourceOfTruth: { type: 'YODLEE', value: yodleeAccount },
-      };
-      return genUpdateAccount(updateAccount);
-    });
 }
 
 export function getAccountName(account: Account): string {
