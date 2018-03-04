@@ -22,7 +22,7 @@ export type SourceOfTruth = {|
 export function getAccountLinkCollection() {
   return getFirebaseAdminOrClient()
     .firestore()
-    .collection('AccountLink');
+    .collection('AccountLinks');
 }
 
 export function createAccountLink(
