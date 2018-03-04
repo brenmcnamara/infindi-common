@@ -190,7 +190,6 @@ export function getGroupType(account: Account): AccountGroupType {
     case 'BROKERAGE_CASH':
     case 'BROKERAGE_CASH_OPTION':
     case 'CASH_ISA':
-    case 'CD':
     case 'CMA':
     case 'INDIVIDUAL_SAVINGS_ACCOUNT_ISA':
     case 'MONEY_MARKET':
@@ -204,6 +203,7 @@ export function getGroupType(account: Account): AccountGroupType {
     case 'ANNUITIZED_ANNUITY':
     case 'ANNUITY':
     case 'BROKERAGE_LINK_ACCOUNT':
+    case 'CD':
     case 'CHARITABLE_REMAINDER':
     case 'CHARITABLE_REMAINDER_TRUST':
     case 'CHARITABLE_LEAD':
@@ -327,15 +327,13 @@ export function getGroupType(account: Account): AccountGroupType {
     case 'SUBSTANTIALLY_EQUAL_PERIODIC_PAYMENTS_SEPP':
       return 'RETIREMENT';
 
+    case 'AUTO_LOAN':
     case 'BROKERAGE_MARGIN':
     case 'BROKERAGE_MARGIN_OPTION':
     case 'HOME_EQUITY_LINE_OF_CREDIT':
-    case 'LINE_OF_CREDIT':
-      return 'CREDIT_CARD_DEBT';
-
-    case 'AUTO_LOAN':
     case 'HOME_LOAN':
     case 'INSTALLMENT_LOAN':
+    case 'LINE_OF_CREDIT':
     case 'MORTGAGE':
     case 'PERSONAL_LOAN':
     case 'STUDENT_LOAN':
