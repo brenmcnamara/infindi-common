@@ -29,6 +29,14 @@ export function getProvidersCollection() {
     .collection('Providers');
 }
 
+export function getProviderName(provider: Provider): string {
+  invariant(
+    provider.sourceOfTruth.type === 'YODLEE',
+    'Expecting provider to come from YODLEE',
+  );
+  return provider.sourceOfTruth.value.name;
+}
+
 export function createProvider(
   sourceOfTruth: SourceOfTruth,
   quirks: Array<string>,

@@ -125,7 +125,7 @@ export type Account = {|
   +balance?: AccountBalance,
   +bankTransferCode?: {| +id: string |},
   +cash?: AccountBalance, // Found this field in my schwab account.
-  +CONTAINER: string,
+  +CONTAINER: Container,
   +createdDate: DateTimeString,
   +currentBalance?: AccountBalance,
   +holderProfile?: Object, // Found this field in my schwab account.
