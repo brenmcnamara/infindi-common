@@ -141,7 +141,9 @@ export function getBalance(account: Account): Dollars {
       }
 
       const groupType = getGroupType(account);
-      return groupType === 'SHORT_TERM_DEBT' ? -balance.amount : balance.amount;
+      return groupType === 'CREDIT_CARD_DEBT' || groupType === 'DEBT'
+        ? -balance.amount
+        : balance.amount;
     }
 
     default: {
