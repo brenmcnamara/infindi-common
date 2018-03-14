@@ -48,6 +48,14 @@ export type Locale = 'en_US';
 // TODO: MORE HERE
 export type Timezone = 'PST';
 
+// Yodlee Docs: https://developer.yodlee.com/Data_Model/Data_Types
+// Currency is a 3-letter ISO code:
+// https://www.ibm.com/support/knowledgecenter/en/SSZLC2_7.0.0/com.ibm.commerce.payments.developer.doc/refs/rpylerl2mst97.htm
+export type Money = {|
+  +amount: number,
+  +currency: string,
+|};
+
 export type Preference = {|
   +currency: Currency,
   +dateFormat: DateFormat,
@@ -59,6 +67,15 @@ export type AccessToken = {|
   +appId: string,
   +url: string,
   +value: string,
+|};
+
+// https://developer.yodlee.com/Data_Model/Resource_Transactions
+export type Merchant = {|
+  +categoryLabel: Array<string>,
+  +id: string,
+  +source: 'YODLEE' | 'FACTUAL',
+  // Note that this is 0, 0 if unknown.
+  coordinates: { latititude: number, longitude: number },
 |};
 
 export type User = {|
@@ -139,6 +156,42 @@ export type Account = {|
   +providerName: string,
   +refreshinfo: RefreshInfo,
 |};
+
+export type Transaction = {|
+  +accountId: Long,
+  +amount: Money,
+  +baseType: TransactionBaseType,
+  +categoryId: Long,
+  +categoryType: string,
+  +category: string,
+  +categorySource: string,
+  +createdDate: DateString,
+  +date: DateString,
+  +description: TransactionDescription,
+  +highLevelCategoryId: Long,
+  +id: Long,
+  +isManual: bool,
+  +lastUpdated: DateString,
+  +merchant: Merchant,
+  +postDate: DateString,
+  +status: TransactionStatus,
+  +subType: string,
+  +type: TransactionType,
+|};
+
+// https://developer.yodlee.com/Data_Model/Resource_Transactions#Transaction_Base_Type
+export type TransactionBaseType = 'DEBIT' | 'CREDIT';
+
+export type TransactionDescription = {|
+  +original: string,
+  +simple: string,
+|};
+
+// https://developer.yodlee.com/Data_Model/Resource_Transactions#Transaction_Type
+export type TransactionType = string;
+
+// https://developer.yodlee.com/Data_Model/Resource_Transactions#Transaction_Status
+export type TransactionStatus = 'POSTED' | 'PENDING' | 'SCHEDULED';
 
 export type AccountBalance = {|
   +amount: number,
