@@ -91,7 +91,7 @@ export function getTitle(transaction: Transaction): string {
     sourceOfTruth.type === 'YODLEE',
     'Expecting transaction to come from YODLEE',
   );
-  return sourceOfTruth.value.description.simple;
+  return sourceOfTruth.value.description.original;
 }
 
 export function getAmount(transaction: Transaction): number {
