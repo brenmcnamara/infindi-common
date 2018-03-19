@@ -1,5 +1,7 @@
 /* @flow */
 
+import invariant from 'invariant';
+
 import { createModelStub, createPointer } from '../db-utils';
 import { getFirebaseAdminOrClient } from '../config';
 
@@ -81,4 +83,28 @@ export function genCreateTransaction(transaction: Transaction): Promise<void> {
   return getTransactionCollection()
     .doc(transaction.id)
     .set(transaction);
+}
+
+export function getTitle(transaction: Transaction): string {
+  const { sourceOfTruth } = transaction;
+  invariant(
+    sourceOfTruth.type === 'YODLEE',
+    'Expecting transaction to come from YODLEE',
+  );
+  return sourceOfTruth.value.description.simple;
+}
+
+export function getAmount(transaction: Transaction): number {
+  const {sourceOfTruth} = transaction;
+  invariant(
+    sourceOfTruth.type === 'YODLEE',
+    'Expecting transaction to come from YODLEE',
+  );
+  return sourceOfTruth.value.amount.amount;
+}
+
+export function getCategory(transaction: Transaction): string {
+  const {sourceOfTruth} = transaction;
+  invariant(sourceOfTruth.type === 'YODLEE', 'Expecting transaction to come from YODLEE');
+  return sourceOfTruth.value.category;
 }
