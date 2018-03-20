@@ -100,7 +100,9 @@ export function getAmount(transaction: Transaction): number {
     sourceOfTruth.type === 'YODLEE',
     'Expecting transaction to come from YODLEE',
   );
-  return sourceOfTruth.value.amount.amount;
+  const dollars = sourceOfTruth.value.amount.amount;
+  const isPositive = sourceOfTruth.value.baseType === 'CREDIT';
+  return isPositive ? dollars : -dollars;
 }
 
 export function getCategory(transaction: Transaction): string {
