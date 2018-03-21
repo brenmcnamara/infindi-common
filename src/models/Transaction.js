@@ -73,9 +73,11 @@ export async function genFetchTransactionsForAccount(
 export async function genDoesYodleeTransactionExist(
   yodleeTransaction: YodleeTransaction,
 ): Promise<bool> {
-  const doc = await getTransactionCollection()
+  const snapshot = await getTransactionCollection()
     .where('sourceOfTruth.type', '==', 'YODLEE')
-    .where('sourceOfTruth.value.id', '==', yodleeTransaction.id);
+    .where('sourceOfTruth.value.id', '==', yodleeTransaction.id)
+    .get();
+  const doc = snapshot.docs[0];
   return Boolean(doc && doc.exists);
 }
 
