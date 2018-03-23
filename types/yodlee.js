@@ -173,9 +173,10 @@ export type Transaction = {|
   +isManual: bool,
   +lastUpdated: DateTimeString,
   +merchant: Merchant,
-  +postDate: DateString,
+  +postDate?: DateString,
   +status: TransactionStatus,
   +subType: string,
+  +transactionDate?: DateString,
   +type: TransactionType,
 |};
 

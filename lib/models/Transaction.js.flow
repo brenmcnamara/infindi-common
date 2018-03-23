@@ -34,6 +34,11 @@ export function createTransactionYodlee(
   accountID: ID,
 ): Transaction {
   const date = yodleeTransaction.postDate || yodleeTransaction.transactionDate;
+  invariant(
+    date,
+    'Expecting either "postDate" or "transactionDate" property to be set on yodlee transaction: %s',
+    yodleeTransaction.id,
+  );
   const dateComponents = date.split('-').map(c => parseInt(c, 10));
   const transactionDate = new Date(
     Date.UTC(dateComponents[0], dateComponents[1] - 1, dateComponents[2]),
