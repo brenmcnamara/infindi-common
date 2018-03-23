@@ -33,9 +33,8 @@ export function createTransactionYodlee(
   userID: ID,
   accountID: ID,
 ): Transaction {
-  const dateComponents = yodleeTransaction.postDate
-    .split('-')
-    .map(c => parseInt(c, 10));
+  const date = yodleeTransaction.postDate || yodleeTransaction.transactionDate;
+  const dateComponents = date.split('-').map(c => parseInt(c, 10));
   const transactionDate = new Date(
     Date.UTC(dateComponents[0], dateComponents[1] - 1, dateComponents[2]),
   );
@@ -60,8 +59,7 @@ export async function genFetchTransactionsForAccount(
     .where('accountRef.refID', '==', account.id)
     // Transaction dates are rounded to the day, so we sort by createdDate as
     // well as a fallback.
-    .orderBy('transactionDate', 'desc')
-    .orderBy('sourceOfTruth.value.createdDate', 'desc');
+    .orderBy('transactionDate', 'desc');
   if (limit !== Infinity) {
     query = query.limit(limit);
   }
@@ -97,7 +95,7 @@ export function getTitle(transaction: Transaction): string {
 }
 
 export function getAmount(transaction: Transaction): number {
-  const {sourceOfTruth} = transaction;
+  const { sourceOfTruth } = transaction;
   invariant(
     sourceOfTruth.type === 'YODLEE',
     'Expecting transaction to come from YODLEE',
@@ -108,7 +106,10 @@ export function getAmount(transaction: Transaction): number {
 }
 
 export function getCategory(transaction: Transaction): string {
-  const {sourceOfTruth} = transaction;
-  invariant(sourceOfTruth.type === 'YODLEE', 'Expecting transaction to come from YODLEE');
+  const { sourceOfTruth } = transaction;
+  invariant(
+    sourceOfTruth.type === 'YODLEE',
+    'Expecting transaction to come from YODLEE',
+  );
   return sourceOfTruth.value.category;
 }
