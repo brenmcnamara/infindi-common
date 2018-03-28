@@ -11,6 +11,7 @@ import type { ProviderAccount as YodleeProviderAccount } from '../../types/yodle
 export type AccountLink = ModelStub<'AccountLink'> & {
   +providerRef: Pointer<'Provider'>,
   +sourceOfTruth: SourceOfTruth,
+  +status: AccountLinkStatus,
   +userRef: Pointer<'User'>,
 };
 
@@ -18,6 +19,15 @@ export type SourceOfTruth = {|
   +providerAccount: YodleeProviderAccount,
   +type: 'YODLEE',
 |};
+
+export type AccountLinkStatus =
+  | 'FAILURE / BAD_CREDENTIALS'
+  | 'FAILURE / EXTERNAL_SERVICE_FAILURE'
+  | 'FAILURE / INTERNAL_SERVICE_FAILURE'
+  | 'IN_PROGRESS / INITIALIZING'
+  | 'IN_PROGRESS / VERIFYING_CREDENTIALS'
+  | 'IN_PROGRESS / DOWNLOADING_DATA'
+  | 'SUCCESS';
 
 export function getAccountLinkCollection() {
   return getFirebaseAdminOrClient()
@@ -34,6 +44,7 @@ export function createAccountLink(
     ...createModelStub('AccountLink'),
     providerRef: createPointer('Provider', providerID),
     sourceOfTruth,
+    status: calculateAccountLinkStatus(sourceOfTruth),
     userRef: createPointer('User', userID),
   };
 }
@@ -58,6 +69,19 @@ export function updateAccountLink(
   return {
     ...accountLink,
     sourceOfTruth,
+    status: calculateAccountLinkStatus(sourceOfTruth),
+    updatedAt: now,
+  };
+}
+
+export function updateAccountLinkStatus(
+  accountLink: AccountLink,
+  status: AccountLinkStatus,
+): AccountLink {
+  const now = new Date();
+  return {
+    ...accountLink,
+    status,
     updatedAt: now,
   };
 }
@@ -136,28 +160,15 @@ export function genDeleteAccountLink(id: ID): Promise<void> {
 }
 
 export function isLinking(accountLink: AccountLink): bool {
-  const providerAccount = getYodleeProviderAccount(accountLink);
-  return Boolean(
-    !providerAccount ||
-      !providerAccount.refreshInfo.status ||
-      providerAccount.refreshInfo.status === 'IN_PROGRESS',
-  );
+  return accountLink.status.startsWith('IN_PROGRESS');
 }
 
 export function isLinkSuccess(accountLink: AccountLink): bool {
-  const providerAccount = getYodleeProviderAccount(accountLink);
-  return Boolean(
-    providerAccount &&
-      (providerAccount.refreshInfo.status === 'SUCCESS' ||
-        providerAccount.refreshInfo.status === 'PARTIAL_SUCCESS'),
-  );
+  return accountLink.status.startsWith('SUCCESS');
 }
 
 export function isLinkFailure(accountLink: AccountLink): bool {
-  const providerAccount = getYodleeProviderAccount(accountLink);
-  return Boolean(
-    providerAccount && providerAccount.refreshInfo.status === 'FAILED',
-  );
+  return accountLink.status.startsWith('FAILURE');
 }
 
 // -----------------------------------------------------------------------------
@@ -166,13 +177,28 @@ export function isLinkFailure(accountLink: AccountLink): bool {
 //
 // -----------------------------------------------------------------------------
 
-function getYodleeProviderAccount(
-  accountLink: AccountLink,
-): YodleeProviderAccount {
-  const { sourceOfTruth } = accountLink;
+function calculateAccountLinkStatus(
+  sourceOfTruth: SourceOfTruth,
+): AccountLinkStatus {
   invariant(
     sourceOfTruth.type === 'YODLEE',
-    'Expecting account link to come from YODLEE',
+    'Calculating account link status only supports yodlee',
   );
-  return sourceOfTruth.providerAccount;
+  const { refreshInfo } = sourceOfTruth.providerAccount;
+
+  if (!refreshInfo.status) {
+    return 'IN_PROGRESS / INITIALIZING';
+  }
+  if (refreshInfo.status === 'IN_PROGRESS') {
+    return refreshInfo.additionalStatus === 'LOGIN_IN_PROGRESS'
+      ? 'IN_PROGRESS / VERIFYING_CREDENTIALS'
+      : 'IN_PROGRESS / DOWNLOADING_DATA';
+  }
+  if (refreshInfo.status === 'FAILED') {
+    const isLoginFailure = refreshInfo.additionalStatus === 'LOGIN_FAILED';
+    return isLoginFailure
+      ? 'FAILURE / BAD_CREDENTIALS'
+      : 'FAILURE / INTERNAL_SERVICE_FAILURE';
+  }
+  return 'SUCCESS';
 }
