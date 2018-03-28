@@ -23,7 +23,7 @@ export type SourceOfTruth = {|
   +value: YodleeProviderFull,
 |};
 
-export function getProvidersCollection() {
+export function getProviderCollection() {
   return getFirebaseAdminOrClient()
     .firestore()
     .collection('Providers');
@@ -52,22 +52,22 @@ export function createProvider(
 }
 
 export function genFetchProvider(id: ID): Promise<Provider | null> {
-  return getProvidersCollection()
+  return getProviderCollection()
     .doc(id)
     .get()
     .then(doc => (doc.exists ? doc.data() : null));
 }
 
 export function genCreateProvider(provider: Provider): Promise<void> {
-  return getProvidersCollection().set(provider.id, provider);
+  return getProviderCollection().set(provider.id, provider);
 }
 
 export function genUpdateProvider(provider: Provider): Promise<void> {
-  return getProvidersCollection().update(provider.id, provider);
+  return getProviderCollection().update(provider.id, provider);
 }
 
 export function genUpsertProvider(provider: Provider): Promise<void> {
-  return getProvidersCollection().set(provider.id, provider);
+  return getProviderCollection().set(provider.id, provider);
 }
 
 const BATCH_LIMIT = 100;
@@ -79,7 +79,7 @@ export function genUpsertProviders(providers: Array<Provider>): Promise<mixed> {
     let currentBatch = db.batch();
     const batches = [currentBatch];
     providers.forEach(p => {
-      const ref = getProvidersCollection().doc(p.id);
+      const ref = getProviderCollection().doc(p.id);
       currentBatch.set(ref, p);
       ++batchCount;
       if (batchCount > BATCH_LIMIT) {

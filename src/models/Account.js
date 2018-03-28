@@ -42,7 +42,7 @@ export type AccountGroupType =
   | 'RETIREMENT'
   | 'REWARDS';
 
-export function getAccountsCollection() {
+export function getAccountCollection() {
   return getFirebaseAdminOrClient()
     .firestore()
     .collection('Accounts');
@@ -82,7 +82,7 @@ export function updateAccountYodlee(
 }
 
 export function genFetchAccount(accountID: ID): Promise<Account | null> {
-  return getAccountsCollection()
+  return getAccountCollection()
     .doc(accountID)
     .get()
     .then(doc => (doc.exists ? doc.data() : null));
@@ -91,7 +91,7 @@ export function genFetchAccount(accountID: ID): Promise<Account | null> {
 export function genFetchAccountsForAccountLink(
   accountLinkID: ID,
 ): Promise<Array<Account>> {
-  return getAccountsCollection()
+  return getAccountCollection()
     .where('accountLinkRef.refID', '==', accountLinkID)
     .get()
     .then(snapshot =>
@@ -100,13 +100,13 @@ export function genFetchAccountsForAccountLink(
 }
 
 export function genCreateAccount(account: Account): Promise<void> {
-  return getAccountsCollection()
+  return getAccountCollection()
     .doc(account.id)
     .set(account);
 }
 
 export function genUpdateAccount(account: Account): Promise<void> {
-  return getAccountsCollection()
+  return getAccountCollection()
     .doc(account.id)
     .update(account);
 }
