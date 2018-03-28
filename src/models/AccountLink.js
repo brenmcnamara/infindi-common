@@ -66,12 +66,13 @@ export function updateAccountLink(
   sourceOfTruth: SourceOfTruth,
 ): AccountLink {
   const now = new Date();
-  return {
+  const newAccountLink: AccountLink = {
     ...accountLink,
     sourceOfTruth,
     status: calculateAccountLinkStatus(sourceOfTruth),
     updatedAt: now,
   };
+  return newAccountLink;
 }
 
 export function updateAccountLinkStatus(
@@ -79,11 +80,12 @@ export function updateAccountLinkStatus(
   status: AccountLinkStatus,
 ): AccountLink {
   const now = new Date();
-  return {
+  const newAccountLink: AccountLink = {
     ...accountLink,
     status,
     updatedAt: now,
   };
+  return newAccountLink;
 }
 
 export function updateAccountLinkYodlee(
