@@ -78,6 +78,11 @@ export type Merchant = {|
   coordinates: { latititude: number, longitude: number },
 |};
 
+export type RefreshStatus =
+  | 'REFRESH_TRIGGERED'
+  | 'REFRESH_COMPLETED'
+  | 'LOGIN_FAILURE';
+
 export type User = {|
   +id: Long,
   +loginName: string,

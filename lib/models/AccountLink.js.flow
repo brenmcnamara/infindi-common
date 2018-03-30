@@ -26,6 +26,7 @@ export type AccountLinkStatus =
   | 'FAILURE / INTERNAL_SERVICE_FAILURE'
   | 'IN_PROGRESS / INITIALIZING'
   | 'IN_PROGRESS / VERIFYING_CREDENTIALS'
+  | 'IN_PROGRESS / USER_INPUT_REQUIRED'
   | 'IN_PROGRESS / DOWNLOADING_DATA'
   | 'SUCCESS';
 
@@ -162,7 +163,14 @@ export function genDeleteAccountLink(id: ID): Promise<void> {
 }
 
 export function isLinking(accountLink: AccountLink): bool {
-  return accountLink.status.startsWith('IN_PROGRESS');
+  return (
+    accountLink.status.startsWith('IN_PROGRESS') &&
+    accountLink.status !== 'IN_PROGRESS / USER_INPUT_REQUIRED'
+  );
+}
+
+export function isPendingUserInput(accountLink: AccountLink): bool {
+  return accountLink.status === 'IN_PROGRESS / USER_INPUT_REQUIRED';
 }
 
 export function isLinkSuccess(accountLink: AccountLink): bool {
@@ -194,7 +202,9 @@ function calculateAccountLinkStatus(
   if (refreshInfo.status === 'IN_PROGRESS') {
     return refreshInfo.additionalStatus === 'LOGIN_IN_PROGRESS'
       ? 'IN_PROGRESS / VERIFYING_CREDENTIALS'
-      : 'IN_PROGRESS / DOWNLOADING_DATA';
+      : refreshInfo.additionalStatus === 'USER_INPUT_REQUIRED'
+        ? 'IN_PROGRESS / USER_INPUT_REQUIRED'
+        : 'IN_PROGRESS / DOWNLOADING_DATA';
   }
   if (refreshInfo.status === 'FAILED') {
     const isLoginFailure = refreshInfo.additionalStatus === 'LOGIN_FAILED';
