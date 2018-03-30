@@ -346,6 +346,8 @@ export function getGroupType(account: Account): AccountGroupType {
     case 'CHURCH_ACCOUNT':
       return 'CHARITY';
 
+    case 'OTHER':
+      return container === 'investment' ? 'NON_LIQUID_INVESTMENTS' : 'OTHER';
     default:
       return 'OTHER';
   }
