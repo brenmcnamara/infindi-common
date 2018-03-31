@@ -130,7 +130,7 @@ export type ProviderAccount = {|
   +id: Long,
   +isManual: bool,
   +lastUpdated: DateTimeString,
-  +loginForm: LoginForm,
+  +loginForm?: LoginForm,
   +providerId: Long,
   +refreshInfo: RefreshInfo,
 |};
@@ -232,26 +232,70 @@ export type RefreshInfoAdditionalStatus =
   | 'PARTIAL_DATA_RETRIEVED'
   | 'PARTIAL_DATA_RETRIEVED_REM_SCHED';
 
-export type LoginForm = {|
-  +forgetPasswordURL?: string,
-  +formType: 'login' | string, // TODO
-  +id: Long,
-  +row: Array<LoginEntry>,
-|};
+// -----------------------------------------------------------------------------
+//
+// LOGIN FORM
+//
+// -----------------------------------------------------------------------------
 
-export type LoginEntry = {|
-  +id: Long,
+export type LoginForm =
+  | {|
+      +forgetPasswordURL?: string,
+      +formType: 'login',
+      +id: Long | string,
+      +row: Array<LoginRow>,
+    |}
+  | {|
+      +formType: 'questionAndAnswer',
+      +mfaInfoText: string,
+      +mfaInfoTitle: string,
+      +mfaTimeout: Long,
+      +row: Array<LoginRow>,
+    |};
+
+export type LoginRow = {|
+  +id: Long | string,
   +label: string,
   +fieldRowChoice: string,
   +form: string,
-  +field: Array<{|
-    +id: Long,
-    +isOptional: bool,
-    +maxLength: number,
-    +name: 'LOGIN' | 'PASSWORD' | string, // TODO
-    // https://developer.yodlee.com/Data_Model/Resource_Provider#fieldType
-    +type: 'text' | 'password' | 'option' | 'checkbox' | 'radio' | 'image',
-    +value: string,
-    +valueEditable: bool,
+  +field: Array<LoginField>,
+|};
+
+export type LoginField = LoginField$General | LoginField$Option;
+
+export type LoginField$General = {|
+  +id: Long | string,
+  +isOptional: bool,
+  +maxLength: number,
+  +name: 'LOGIN' | 'PASSWORD' | string, // TODO
+  // https://developer.yodlee.com/Data_Model/Resource_Provider#fieldType
+  +type: 'checkbox' | 'radio' | 'image',
+  +value: string,
+  +valueEditable: 'true' | 'false',
+|};
+
+export type LoginField$TextOrPassword = {|
+  +id: Long | string,
+  +isOptional: bool,
+  +label: string,
+  +maxLength: number,
+  +name: 'LOGIN' | 'PASSWORD' | string, // TODO
+  // https://developer.yodlee.com/Data_Model/Resource_Provider#fieldType
+  +type: 'text' | 'password',
+  +value: string,
+  +valueEditable: 'true' | 'false',
+|};
+
+export type LoginField$Option = {|
+  +id: Long | string,
+  +isOptional: bool,
+  +name: string,
+  +option: Array<{|
+    +displayText: string,
+    +isSelected: bool,
+    +optionValue: string,
   |}>,
+  +type: 'option',
+  +value: string,
+  +valueEditable: 'true' | 'false',
 |};

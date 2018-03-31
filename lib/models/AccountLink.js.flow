@@ -6,7 +6,10 @@ import { createModelStub, createPointer } from '../db-utils';
 import { getFirebaseAdminOrClient } from '../config';
 
 import type { ID, ModelStub, Pointer } from '../../types/core';
-import type { ProviderAccount as YodleeProviderAccount } from '../../types/yodlee';
+import type {
+  LoginForm as YodleeLoginForm,
+  ProviderAccount as YodleeProviderAccount,
+} from '../../types/yodlee';
 
 export type AccountLink = ModelStub<'AccountLink'> & {
   +providerRef: Pointer<'Provider'>,
@@ -16,6 +19,7 @@ export type AccountLink = ModelStub<'AccountLink'> & {
 };
 
 export type SourceOfTruth = {|
+  +loginForm: YodleeLoginForm | null,
   +providerAccount: YodleeProviderAccount,
   +type: 'YODLEE',
 |};
@@ -24,10 +28,12 @@ export type AccountLinkStatus =
   | 'FAILURE / BAD_CREDENTIALS'
   | 'FAILURE / EXTERNAL_SERVICE_FAILURE'
   | 'FAILURE / INTERNAL_SERVICE_FAILURE'
+  | 'FAILURE / MFA_FAILURE'
   | 'IN_PROGRESS / INITIALIZING'
   | 'IN_PROGRESS / VERIFYING_CREDENTIALS'
-  | 'IN_PROGRESS / USER_INPUT_REQUIRED'
   | 'IN_PROGRESS / DOWNLOADING_DATA'
+  | 'MFA / PENDING_USER_INPUT'
+  | 'MFA / WAITING_FOR_LOGIN_FORM'
   | 'SUCCESS';
 
 export function getAccountLinkCollection() {
@@ -56,6 +62,10 @@ export function createAccountLinkYodlee(
   providerID: ID,
 ): AccountLink {
   const sourceOfTruth = {
+    loginForm:
+      yodleeProviderAccount.additionalStatus === 'USER_INPUT_REQUIRED'
+        ? yodleeProviderAccount.loginForm || null
+        : null,
     providerAccount: yodleeProviderAccount,
     type: 'YODLEE',
   };
@@ -98,7 +108,12 @@ export function updateAccountLinkYodlee(
     sourceOfTruth.type === 'YODLEE',
     'Expecting refresh info to come from YODLEE',
   );
+  const loginForm =
+    yodleeProviderAccount.refreshInfo.additionalStatus === 'USER_INPUT_REQUIRED'
+      ? yodleeProviderAccount.loginForm || getYodleeLoginForm(accountLink)
+      : null;
   const newSourceOfTruth = {
+    loginForm,
     providerAccount: yodleeProviderAccount,
     type: 'YODLEE',
   };
@@ -163,14 +178,11 @@ export function genDeleteAccountLink(id: ID): Promise<void> {
 }
 
 export function isLinking(accountLink: AccountLink): bool {
-  return (
-    accountLink.status.startsWith('IN_PROGRESS') &&
-    accountLink.status !== 'IN_PROGRESS / USER_INPUT_REQUIRED'
-  );
+  return accountLink.status.startsWith('IN_PROGRESS');
 }
 
 export function isPendingUserInput(accountLink: AccountLink): bool {
-  return accountLink.status === 'IN_PROGRESS / USER_INPUT_REQUIRED';
+  return accountLink.status === 'MFA / PENDING_USER_INPUT';
 }
 
 export function isLinkSuccess(accountLink: AccountLink): bool {
@@ -194,7 +206,7 @@ function calculateAccountLinkStatus(
     sourceOfTruth.type === 'YODLEE',
     'Calculating account link status only supports yodlee',
   );
-  const { refreshInfo } = sourceOfTruth.providerAccount;
+  const { loginForm, refreshInfo } = sourceOfTruth.providerAccount;
 
   if (!refreshInfo.status) {
     return 'IN_PROGRESS / INITIALIZING';
@@ -203,14 +215,31 @@ function calculateAccountLinkStatus(
     return refreshInfo.additionalStatus === 'LOGIN_IN_PROGRESS'
       ? 'IN_PROGRESS / VERIFYING_CREDENTIALS'
       : refreshInfo.additionalStatus === 'USER_INPUT_REQUIRED'
-        ? 'IN_PROGRESS / USER_INPUT_REQUIRED'
+        ? loginForm
+          ? 'MFA / PENDING_USER_INPUT'
+          : 'MFA / WAITING_FOR_LOGIN_FORM'
         : 'IN_PROGRESS / DOWNLOADING_DATA';
   }
   if (refreshInfo.status === 'FAILED') {
+    const isMFAFailure =
+      refreshInfo.statusMessage ===
+      'MFA_INFO_NOT_PROVIDED_IN_REAL_TIME_BY_USER_VIA_APP';
+    // NOTE: isLoginFailure is true during an MFA failure. Need to check
+    // MFA failure first.
     const isLoginFailure = refreshInfo.additionalStatus === 'LOGIN_FAILED';
-    return isLoginFailure
-      ? 'FAILURE / BAD_CREDENTIALS'
-      : 'FAILURE / INTERNAL_SERVICE_FAILURE';
+    return isMFAFailure
+      ? 'FAILURE / MFA_FAILURE'
+      : isLoginFailure
+        ? 'FAILURE / BAD_CREDENTIALS'
+        : 'FAILURE / INTERNAL_SERVICE_FAILURE';
   }
   return 'SUCCESS';
+}
+
+function getYodleeLoginForm(accountLink: AccountLink): YodleeLoginForm | null {
+  invariant(
+    accountLink.sourceOfTruth.type === 'YODLEE',
+    'Expecting account link to come from YODLEE',
+  );
+  return accountLink.sourceOfTruth.loginForm || null;
 }
