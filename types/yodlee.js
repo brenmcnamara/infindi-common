@@ -277,9 +277,8 @@ export type LoginField$General = {|
 export type LoginField$TextOrPassword = {|
   +id: Long | string,
   +isOptional: bool,
-  +label: string,
   +maxLength: number,
-  +name: 'LOGIN' | 'PASSWORD' | string, // TODO
+  +name: string,
   // https://developer.yodlee.com/Data_Model/Resource_Provider#fieldType
   +type: 'text' | 'password',
   +value: string,

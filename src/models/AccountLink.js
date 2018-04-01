@@ -193,6 +193,10 @@ export function isLinkFailure(accountLink: AccountLink): bool {
   return accountLink.status.startsWith('FAILURE');
 }
 
+export function isInMFA(accountLink: AccountLink): bool {
+  return accountLink.status.startsWith('MFA');
+}
+
 // -----------------------------------------------------------------------------
 //
 // UTILITIES
