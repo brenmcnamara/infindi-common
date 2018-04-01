@@ -91,8 +91,18 @@ export function updateAccountLinkStatus(
   status: AccountLinkStatus,
 ): AccountLink {
   const now = new Date();
+  const sourceOfTruth =
+    accountLink.sourceOfTruth.type === 'YODLEE' &&
+    status === 'MFA / WAITING_FOR_LOGIN_FORM'
+      ? {
+          loginForm: null,
+          providerAccount: accountLink.sourceOfTruth.providerAccount,
+          type: 'YODLEE',
+        }
+      : accountLink.sourceOfTruth;
   const newAccountLink: AccountLink = {
     ...accountLink,
+    sourceOfTruth,
     status,
     updatedAt: now,
   };
