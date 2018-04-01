@@ -210,7 +210,8 @@ function calculateAccountLinkStatus(
     sourceOfTruth.type === 'YODLEE',
     'Calculating account link status only supports yodlee',
   );
-  const { loginForm, refreshInfo } = sourceOfTruth.providerAccount;
+  const { refreshInfo } = sourceOfTruth.providerAccount;
+  const { loginForm } = sourceOfTruth;
 
   if (!refreshInfo.status) {
     return 'IN_PROGRESS / INITIALIZING';
