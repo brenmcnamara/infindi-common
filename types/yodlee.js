@@ -267,7 +267,7 @@ export type LoginField$General = {|
   +id: Long | string,
   +isOptional: bool,
   +maxLength: number,
-  +name: 'LOGIN' | 'PASSWORD' | string, // TODO
+  +name: string,
   // https://developer.yodlee.com/Data_Model/Resource_Provider#fieldType
   +type: 'checkbox' | 'radio' | 'image',
   +value: string,
@@ -291,7 +291,7 @@ export type LoginField$Option = {|
   +name: string,
   +option: Array<{|
     +displayText: string,
-    +isSelected: bool,
+    +isSelected: 'true' | 'false',
     +optionValue: string,
   |}>,
   +type: 'option',
