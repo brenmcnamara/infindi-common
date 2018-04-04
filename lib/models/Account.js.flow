@@ -115,11 +115,17 @@ export function getAccountName(account: Account): string {
   const { sourceOfTruth } = account;
   switch (sourceOfTruth.type) {
     case 'YODLEE': {
-      const raw = sourceOfTruth.value.accountName;
-      return raw
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ');
+      const {accountName, accountNumber, CONTAINER} = sourceOfTruth.value;
+      if (accountName) {
+        return accountName
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+          .join(' ');
+      } else if (accountNumber) {
+        return `${CONTAINER} account ${accountNumber}`;
+      } else {
+        return `${CONTAINER} account (Unnamed)`;
+      }
     }
 
     default:
@@ -178,7 +184,7 @@ export function getGroupType(account: Account): AccountGroupType {
     return 'CREDIT_CARD_DEBT';
   } else if (container === 'loan' && accountType === 'OTHER') {
     return 'DEBT';
-  } else if (container === 'rewards') {
+  } else if (container === 'reward') {
     return 'REWARDS';
   }
 

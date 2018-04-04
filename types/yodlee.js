@@ -138,8 +138,8 @@ export type ProviderAccount = {|
 // Account types and containers can be found here:
 // https://developer.yodlee.com/Data_Model/Resource_Provider_Accounts
 export type Account = {|
-  +accountName: string,
-  +accountNumber: string,
+  +accountName?: string,
+  +accountNumber?: string,
   +accountStatus: 'ACTIVE' | 'TO_BE_CLOSED' | string,
   +accountType: 'INDIVIDUAL' | string,
   +aggregationSource: 'USER' | 'SYSTEM',
