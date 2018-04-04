@@ -29,6 +29,7 @@ export type AccountLinkStatus =
   | 'FAILURE / EXTERNAL_SERVICE_FAILURE'
   | 'FAILURE / INTERNAL_SERVICE_FAILURE'
   | 'FAILURE / MFA_FAILURE'
+  | 'FAILURE / USER_INPUT_REQUEST_IN_BACKGROUND'
   | 'IN_PROGRESS / INITIALIZING'
   | 'IN_PROGRESS / VERIFYING_CREDENTIALS'
   | 'IN_PROGRESS / DOWNLOADING_DATA'
@@ -187,23 +188,23 @@ export function genDeleteAccountLink(id: ID): Promise<void> {
     .delete();
 }
 
-export function isLinking(accountLink: AccountLink): bool {
+export function isLinking(accountLink: AccountLink): boolean {
   return accountLink.status.startsWith('IN_PROGRESS');
 }
 
-export function isPendingUserInput(accountLink: AccountLink): bool {
+export function isPendingUserInput(accountLink: AccountLink): boolean {
   return accountLink.status === 'MFA / PENDING_USER_INPUT';
 }
 
-export function isLinkSuccess(accountLink: AccountLink): bool {
+export function isLinkSuccess(accountLink: AccountLink): boolean {
   return accountLink.status.startsWith('SUCCESS');
 }
 
-export function isLinkFailure(accountLink: AccountLink): bool {
+export function isLinkFailure(accountLink: AccountLink): boolean {
   return accountLink.status.startsWith('FAILURE');
 }
 
-export function isInMFA(accountLink: AccountLink): bool {
+export function isInMFA(accountLink: AccountLink): boolean {
   return accountLink.status.startsWith('MFA');
 }
 
