@@ -107,15 +107,15 @@ export type Provider = {
   +favicon: string,
   +forgetPasswordUrl?: string,
   +id: Long,
-  +isAutoRefreshEnabled: bool,
+  +isAutoRefreshEnabled: boolean,
   +languageISOCode: string,
   +lastModified: DateTimeString,
   +loginUrl: string,
   +logo: string,
   +mfaType?: string,
   +name: string,
-  +oAuthSite: bool,
-  +PRIORITY: 'SUGGESTED' | 'COBRAND' | 'POPULAR' | 'SEARCH',
+  +oAuthSite: boolean,
+  +PRIORITY?: 'SUGGESTED' | 'COBRAND' | 'POPULAR' | 'SEARCH',
   +primaryLanguageISOCode: string,
   +status: 'Supported' | 'Beta',
 };
@@ -128,7 +128,7 @@ export type ProviderAccount = {|
   +aggregationSource: 'USER' | 'SYSTEM',
   +createdDate: DateString,
   +id: Long,
-  +isManual: bool,
+  +isManual: boolean,
   +lastUpdated: DateTimeString,
   +loginForm?: LoginForm,
   +providerId: Long,
@@ -152,9 +152,9 @@ export type Account = {|
   +currentBalance?: AccountBalance,
   +holderProfile?: Object, // Found this field in my schwab account.
   +id: Long,
-  +includeInNetWorth?: bool,
-  +isAsset: bool,
-  +isManual: bool,
+  +includeInNetWorth?: boolean,
+  +isAsset: boolean,
+  +isManual: boolean,
   +lastUpdated: DateTimeString,
   +providerAccountId: Long,
   +providerId: string,
@@ -175,7 +175,7 @@ export type Transaction = {|
   +description: TransactionDescription,
   +highLevelCategoryId: Long,
   +id: Long,
-  +isManual: bool,
+  +isManual: boolean,
   +lastUpdated: DateTimeString,
   +merchant: Merchant,
   +postDate?: DateString,
@@ -265,7 +265,7 @@ export type LoginField = LoginField$General | LoginField$Option;
 
 export type LoginField$General = {|
   +id: Long | string,
-  +isOptional: bool,
+  +isOptional: boolean,
   +maxLength: number,
   +name: string,
   // https://developer.yodlee.com/Data_Model/Resource_Provider#fieldType
@@ -276,7 +276,7 @@ export type LoginField$General = {|
 
 export type LoginField$TextOrPassword = {|
   +id: Long | string,
-  +isOptional: bool,
+  +isOptional: boolean,
   +maxLength: number,
   +name: string,
   // https://developer.yodlee.com/Data_Model/Resource_Provider#fieldType
@@ -287,7 +287,7 @@ export type LoginField$TextOrPassword = {|
 
 export type LoginField$Option = {|
   +id: Long | string,
-  +isOptional: bool,
+  +isOptional: boolean,
   +name: string,
   +option: Array<{|
     +displayText: string,
