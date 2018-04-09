@@ -170,6 +170,7 @@ export function genFetchAccountLinkForProvider(
     });
 }
 
+// TODO: Rename to genSetAccountLink
 export function genCreateAccountLink(accountLink: AccountLink): Promise<void> {
   return getAccountLinkCollection()
     .doc(accountLink.id)

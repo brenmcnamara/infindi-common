@@ -9,7 +9,7 @@ import type { ID, ModelStub } from '../../types/core';
 import type { ProviderFull as YodleeProviderFull } from '../../types/yodlee';
 
 export type Provider = ModelStub<'Provider'> & {
-  isDeprecated: bool,
+  isDeprecated: boolean,
   quirkCount: number,
   quirks: Array<string>,
   sourceOfTruth: {|
