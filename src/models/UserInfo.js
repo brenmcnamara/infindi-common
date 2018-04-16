@@ -17,6 +17,7 @@ export type UserInfo = ModelStub<'UserInfo'> & {|
   +DOB: YearMonthDay,
   +firstName: string,
   +gender: 'MALE' | 'FEMALE',
+  +isAdmin: boolean,
   +isTestUser: boolean,
   +lastName: string,
 |};
