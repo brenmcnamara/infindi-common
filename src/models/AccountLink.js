@@ -12,6 +12,7 @@ import type {
 } from '../../types/yodlee';
 
 export type AccountLink = ModelStub<'AccountLink'> & {
+  +providerName: string,
   +providerRef: Pointer<'Provider'>,
   +sourceOfTruth: SourceOfTruth,
   +status: AccountLinkStatus,
@@ -47,9 +48,11 @@ export function createAccountLink(
   sourceOfTruth: SourceOfTruth,
   userID: ID,
   providerID: ID,
+  providerName: string,
 ): AccountLink {
   return {
     ...createModelStub('AccountLink'),
+    providerName,
     providerRef: createPointer('Provider', providerID),
     sourceOfTruth,
     status: calculateAccountLinkStatus(sourceOfTruth),
@@ -61,6 +64,7 @@ export function createAccountLinkYodlee(
   yodleeProviderAccount: YodleeProviderAccount,
   userID: ID,
   providerID: ID,
+  providerName: string,
 ): AccountLink {
   const sourceOfTruth = {
     loginForm:
@@ -70,7 +74,7 @@ export function createAccountLinkYodlee(
     providerAccount: yodleeProviderAccount,
     type: 'YODLEE',
   };
-  return createAccountLink(sourceOfTruth, userID, providerID);
+  return createAccountLink(sourceOfTruth, userID, providerID, providerName);
 }
 
 export function updateAccountLink(
