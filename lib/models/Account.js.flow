@@ -5,28 +5,20 @@ import invariant from 'invariant';
 import { createModelStub, createPointer, updateModelStub } from '../db-utils';
 import { getFirebaseAdminOrClient } from '../config';
 
-import type { Account as PlaidAccount } from '../../types/plaid';
-import type { Account as YodleeAccount } from '../../types/yodlee';
+import type { Account as YodleeAccount } from '../../types/yodlee-v1.0';
 import type { Dollars, ID, ModelStub, Pointer } from '../../types/core';
 
-export type AccountSourceOfTruth =
-  | AccountSourceOfTruth$Yodlee
-  | AccountSourceOfTruth$Plaid;
+export type AccountSourceOfTruth = AccountSourceOfTruth$Yodlee;
 
 export type AccountSourceOfTruth$Yodlee = {|
   +type: 'YODLEE',
   +value: YodleeAccount,
 |};
 
-export type AccountSourceOfTruth$Plaid = {|
-  +type: 'PLAID',
-  +value: PlaidAccount,
-|};
-
 export type Account = ModelStub<'Account'> & {
   +accountLinkRef: Pointer<'AccountLink'>,
-  +canDisplay: bool,
-  +isTestAccount: bool,
+  +canDisplay: boolean,
+  +isTestAccount: boolean,
   +sourceOfTruth: AccountSourceOfTruth,
   +userRef: Pointer<'User'>,
 };
@@ -52,7 +44,7 @@ export function createAccountYodlee(
   yodleeAccount: YodleeAccount,
   accountLinkID: ID,
   userID: ID,
-  isTestAccount: bool = false,
+  isTestAccount: boolean = false,
 ): Account {
   return {
     ...createModelStub('Account'),
@@ -115,11 +107,13 @@ export function getAccountName(account: Account): string {
   const { sourceOfTruth } = account;
   switch (sourceOfTruth.type) {
     case 'YODLEE': {
-      const {accountName, accountNumber, CONTAINER} = sourceOfTruth.value;
+      const { accountName, accountNumber, CONTAINER } = sourceOfTruth.value;
       if (accountName) {
         return accountName
           .split(' ')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+          .map(
+            word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+          )
           .join(' ');
       } else if (accountNumber) {
         return `${CONTAINER} account ${accountNumber}`;
@@ -368,7 +362,7 @@ export function getInstitution(account: Account): string {
   return sourceOfTruth.value.providerName.toUpperCase();
 }
 
-function calculateCanDisplay(yodleeAccount: YodleeAccount): bool {
+function calculateCanDisplay(yodleeAccount: YodleeAccount): boolean {
   return Boolean(
     yodleeAccount.accountType !== 'REWARD_POINTS' && yodleeAccount.balance,
   );

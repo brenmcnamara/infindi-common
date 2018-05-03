@@ -6,7 +6,7 @@ import { createModelStub } from '../db-utils';
 import { getFirebaseAdmin, getFirebaseAdminOrClient } from '../config';
 
 import type { ID, ModelStub } from '../../types/core';
-import type { ProviderFull as YodleeProviderFull } from '../../types/yodlee';
+import type { ProviderFull as YodleeProviderFull } from '../../types/yodlee-v1.0';
 
 export type Provider = ModelStub<'Provider'> & {
   isDeprecated: boolean,

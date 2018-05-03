@@ -9,7 +9,7 @@ import type { ID, ModelStub, Pointer } from '../../types/core';
 import type {
   LoginForm as YodleeLoginForm,
   ProviderAccount as YodleeProviderAccount,
-} from '../../types/yodlee';
+} from '../../types/yodlee-v1.0';
 
 export type AccountLink = ModelStub<'AccountLink'> & {
   +providerName: string,

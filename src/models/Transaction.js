@@ -7,7 +7,7 @@ import { getFirebaseAdminOrClient } from '../config';
 
 import type { Account } from './Account';
 import type { ID, ModelStub, Pointer } from '../../types/core';
-import type { Transaction as YodleeTransaction } from '../../types/yodlee';
+import type { Transaction as YodleeTransaction } from '../../types/yodlee-v1.0';
 
 /**
  * A bank transaction
@@ -75,7 +75,7 @@ export async function genFetchTransactionsForAccount(
 
 export async function genDoesYodleeTransactionExist(
   yodleeTransaction: YodleeTransaction,
-): Promise<bool> {
+): Promise<boolean> {
   const snapshot = await getTransactionCollection()
     .where('sourceOfTruth.type', '==', 'YODLEE')
     .where('sourceOfTruth.value.id', '==', yodleeTransaction.id)
