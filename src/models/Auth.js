@@ -16,12 +16,12 @@ export type LoginPayload = {|
   +userInfo: UserInfo,
 |};
 
-export type SignUpForm = {|
+export type SignUpForm = {
   +email: string,
   +firstName: string,
   +lastName: string,
   +password: string,
-|};
+};
 
 /**
  * Login a user with the given email and password.
