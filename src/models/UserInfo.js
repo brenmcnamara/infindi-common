@@ -2,7 +2,7 @@
 
 import { getFirebaseAdminOrClient } from '../config';
 
-import type { Fuzzy, ModelStub, YearMonthDay } from '../../types/core';
+import type { ModelStub } from '../../types/core';
 import type {ID} from 'common/types/core';
 
 /**
@@ -12,15 +12,12 @@ import type {ID} from 'common/types/core';
  * This has a 1:1 relationship between a firebase User and shares the same
  * id.
  */
-export type UserInfo = ModelStub<'UserInfo'> & {|
-  +currentResidence: Fuzzy<Location>,
-  +DOB: YearMonthDay,
+export type UserInfo = ModelStub<'UserInfo'> & {
   +firstName: string,
-  +gender: 'MALE' | 'FEMALE',
   +isAdmin: boolean,
   +isTestUser: boolean,
   +lastName: string,
-|};
+};
 
 export function getUserInfoCollection() {
   return getFirebaseAdminOrClient().firestore().collection('UserInfo');
@@ -29,4 +26,8 @@ export function getUserInfoCollection() {
 export async function genFetchUserInfo(id: ID): Promise<UserInfo | null> {
   const doc = await getUserInfoCollection().doc(id).get();
   return doc.exists ? doc.data() : null;
+}
+
+export async function genSetUserInfo(userInfo: UserInfo) {
+  return getUserInfoCollection().doc(userInfo.id).set(userInfo);
 }

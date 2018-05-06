@@ -19,6 +19,7 @@ export type LoginPayload = {|
 export type SignUpForm = {
   +email: string,
   +firstName: string,
+  +isTestUser: boolean,
   +lastName: string,
   +password: string,
 };
