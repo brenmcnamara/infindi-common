@@ -181,7 +181,7 @@ export function genCreateAccountLink(accountLink: AccountLink): Promise<void> {
     .set(accountLink);
 }
 
-export function genUpdateRefreshInfo(accountLink: AccountLink): Promise<void> {
+export function genUpdateAccountLink(accountLink: AccountLink): Promise<void> {
   return getAccountLinkCollection()
     .doc(accountLink.id)
     .update(accountLink);
