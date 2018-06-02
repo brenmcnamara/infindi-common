@@ -69,7 +69,8 @@ export function createAccountLinkYodlee(
 ): AccountLink {
   const sourceOfTruth = {
     loginForm:
-      yodleeProviderAccount.additionalStatus === 'USER_INPUT_REQUIRED'
+      yodleeProviderAccount.refreshInfo.additionalStatus ===
+      'USER_INPUT_REQUIRED'
         ? yodleeProviderAccount.loginForm || null
         : null,
     providerAccount: yodleeProviderAccount,
