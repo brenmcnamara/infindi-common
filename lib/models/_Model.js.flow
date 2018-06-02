@@ -39,9 +39,7 @@ export class ModelMutator<TModelName: string, TRaw: ModelStub<TModelName>> {
   // DO NOT OVERRIDE
   // ---------------------------------------------------------------------------
   genSet(model: Model<*, TRaw>): Promise<void> {
-    return this.__firebaseCollection
-      .doc(model.id)
-      .set(model);
+    return this.__firebaseCollection.doc(model.id).set(model);
   }
 
   get __firebaseCollection(): * {
@@ -105,6 +103,12 @@ export class Model<TModelName: string, TRawModel: ModelStub<TModelName>> {
 
   get createdAt(): Date {
     return this.__raw.createdAt;
+  }
+
+  get firebaseCollectionUNSAFE(): * {
+    return getFirebaseAdminOrClient()
+      .firestore()
+      .collection(this.collectionName);
   }
 
   merge(props: $Shape<TRawModel>): this {
