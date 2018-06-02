@@ -89,6 +89,12 @@ export class Model<TModelName: string, TRawModel: ModelStub<TModelName>> {
     return new this.constructor(raw);
   }
 
+  static get FirebaseCollectionUNSAFE(): * {
+    return getFirebaseAdminOrClient()
+      .firestore()
+      .collection(this.collectionName);
+  }
+
   toRaw(): TRawModel {
     return this.__raw;
   }
@@ -103,12 +109,6 @@ export class Model<TModelName: string, TRawModel: ModelStub<TModelName>> {
 
   get createdAt(): Date {
     return this.__raw.createdAt;
-  }
-
-  get firebaseCollectionUNSAFE(): * {
-    return getFirebaseAdminOrClient()
-      .firestore()
-      .collection(this.collectionName);
   }
 
   merge(props: $Shape<TRawModel>): this {
