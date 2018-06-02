@@ -2,8 +2,7 @@
 
 import { getFirebaseAdminOrClient } from '../config';
 
-import type { ModelStub } from '../../types/core';
-import type {ID} from 'common/types/core';
+import type { ID, ModelStub } from '../../types/core';
 
 /**
  * Firebase has a pre-defined User type, which is a bare-bones model containing

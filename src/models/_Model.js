@@ -2,19 +2,19 @@
 
 import { getFirebaseAdminOrClient } from '../config';
 
-import type { ID, ModelStub } from 'common/types/core';
+import type { ID, ModelStub } from '../../types/core';
 
 export class ModelFetcher<TModelName: string, TRaw: ModelStub<TModelName>> {
   // ---------------------------------------------------------------------------
   // MUST OVERRIDE
   // ---------------------------------------------------------------------------
-  collectionName: string;
-  modelName: TModelName;
+  static collectionName: string;
+  static modelName: TModelName;
 
   // ---------------------------------------------------------------------------
   // DO NOT OVERRIDE
   // ---------------------------------------------------------------------------
-  gen(id: ID): Promise<Model<*, TRaw> | null> {
+  gen(id: ID): Promise<Model<*, TRaw, *, *> | null> {
     return this.__firebaseCollection
       .doc(id)
       .get()
@@ -24,7 +24,7 @@ export class ModelFetcher<TModelName: string, TRaw: ModelStub<TModelName>> {
   get __firebaseCollection(): * {
     return getFirebaseAdminOrClient()
       .firestore()
-      .collection(this.collectionName);
+      .collection(this.constructor.collectionName);
   }
 }
 
@@ -32,37 +32,42 @@ export class ModelMutator<TModelName: string, TRaw: ModelStub<TModelName>> {
   // ---------------------------------------------------------------------------
   // MUST OVERRIDE
   // ---------------------------------------------------------------------------
-  collectionName: string;
-  modelName: TModelName;
+  static collectionName: string;
+  static modelName: TModelName;
 
   // ---------------------------------------------------------------------------
   // DO NOT OVERRIDE
   // ---------------------------------------------------------------------------
-  genSet(model: Model<*, TRaw>): Promise<void> {
+  genSet(model: Model<*, TRaw, *, *>): Promise<void> {
     return this.__firebaseCollection.doc(model.id).set(model);
   }
 
   get __firebaseCollection(): * {
     return getFirebaseAdminOrClient()
       .firestore()
-      .collection(this.collectionName);
+      .collection(this.constructor.collectionName);
   }
 }
 
-export class Model<TModelName: string, TRawModel: ModelStub<TModelName>> {
+export class Model<
+  TModelName: string,
+  TRawModel: ModelStub<TModelName>,
+  TFetcher: ModelFetcher<TModelName, *>,
+  TMutator: ModelMutator<TModelName, *>,
+> {
   // ---------------------------------------------------------------------------
   // MUST OVERRIDE
   // ---------------------------------------------------------------------------
-  static Fetcher: ModelFetcher<TModelName, *>;
-  static Mutator: ModelMutator<TModelName, *>;
+  static Fetcher: TFetcher;
+  static Mutator: TMutator;
 
-  collectionName: string;
-  modelName: TModelName;
+  static collectionName: string;
+  static modelName: TModelName;
 
   // ---------------------------------------------------------------------------
   // MAY OVERRIDE
   // ---------------------------------------------------------------------------
-  equals(that: Model<*, TRawModel>): boolean {
+  equals(that: Model<*, TRawModel, TFetcher, TMutator>): boolean {
     if (this === that) {
       return true;
     }
@@ -86,7 +91,8 @@ export class Model<TModelName: string, TRawModel: ModelStub<TModelName>> {
   }
 
   static fromRaw(raw: TRawModel): this {
-    return new this.constructor(raw);
+    const Ctor = this;
+    return new Ctor(raw);
   }
 
   static get FirebaseCollectionUNSAFE(): * {
@@ -112,6 +118,6 @@ export class Model<TModelName: string, TRawModel: ModelStub<TModelName>> {
   }
 
   merge(props: $Shape<TRawModel>): this {
-    return new this.constructor({ ...this.__raw, ...props });
+    return this.constructor.fromRaw({ ...this.__raw, ...props });
   }
 }

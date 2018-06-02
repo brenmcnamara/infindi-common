@@ -51,8 +51,8 @@ export type AccountCollection = Immutable.Map<ID, Account>;
 // -----------------------------------------------------------------------------
 
 class AccountFetcher extends ModelFetcher<'Account', AccountRaw> {
-  collectionName = 'Accounts';
-  modelName = 'Account';
+  static collectionName = 'Accounts';
+  static modelName = 'Account';
 
   genCollectionFromAccountLink(accountLinkID: ID): Promise<AccountCollection> {
     return this.__firebaseCollection
@@ -76,8 +76,8 @@ class AccountFetcher extends ModelFetcher<'Account', AccountRaw> {
 // -----------------------------------------------------------------------------
 
 class AccountMutator extends ModelMutator<'Account', AccountRaw> {
-  collectionName = 'Accounts';
-  modelName = 'Account';
+  static collectionName = 'Accounts';
+  static modelName = 'Account';
 }
 
 // -----------------------------------------------------------------------------
@@ -86,15 +86,20 @@ class AccountMutator extends ModelMutator<'Account', AccountRaw> {
 //
 // -----------------------------------------------------------------------------
 
-export default class Account extends Model<'Account', AccountRaw> {
+export default class Account extends Model<
+  'Account',
+  AccountRaw,
+  AccountFetcher,
+  AccountMutator,
+> {
   // ---------------------------------------------------------------------------
   // EXTENDING MODEL (boilerplate)
   // ---------------------------------------------------------------------------
-  static Fetcher = new AccountFetcher();
-  static Mutator = new AccountMutator();
+  static Fetcher: AccountFetcher = new AccountFetcher();
+  static Mutator: AccountMutator = new AccountMutator();
 
-  collectionName = 'Accounts';
-  modelName = 'Account';
+  static collectionName = 'Accounts';
+  static modelName = 'Account';
 
   __raw: AccountRaw; // TODO: Why do I need to define this?
 
@@ -353,7 +358,8 @@ export default class Account extends Model<'Account', AccountRaw> {
           return accountName
             .split(' ')
             .map(
-              word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+              word =>
+                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
             )
             .join(' ');
         } else if (accountNumber) {
