@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 
-let _isInitialized: bool = false;
+let _isInitialized: boolean = false;
 let _Firebase: * | null = null;
 let _FirebaseAdmin: * | null = null;
 

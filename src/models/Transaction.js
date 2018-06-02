@@ -5,7 +5,7 @@ import invariant from 'invariant';
 import { createModelStub, createPointer } from '../db-utils';
 import { getFirebaseAdminOrClient } from '../config';
 
-import type { Account } from './Account';
+import type { AccountRaw } from './Account';
 import type { ID, ModelStub, Pointer } from '../../types/core';
 import type { Transaction as YodleeTransaction } from '../../types/yodlee-v1.0';
 
@@ -57,7 +57,7 @@ export function createTransactionYodlee(
 }
 
 export async function genFetchTransactionsForAccount(
-  account: Account,
+  account: AccountRaw,
   limit: number = 20,
 ): Promise<Array<Transaction>> {
   let query = getTransactionCollection()
