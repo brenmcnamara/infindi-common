@@ -4,7 +4,11 @@ import { getFirebaseAdminOrClient } from '../config';
 
 import type { ID, ModelStub } from '../../types/core';
 
-export class ModelFetcher<TModelName: string, TRaw: ModelStub<TModelName>> {
+export class ModelFetcher<
+  TModelName: string,
+  TRaw: ModelStub<TModelName>,
+  TModel: Model<TModelName, TRaw>,
+> {
   // ---------------------------------------------------------------------------
   // MUST OVERRIDE
   // ---------------------------------------------------------------------------
@@ -14,7 +18,7 @@ export class ModelFetcher<TModelName: string, TRaw: ModelStub<TModelName>> {
   // ---------------------------------------------------------------------------
   // DO NOT OVERRIDE
   // ---------------------------------------------------------------------------
-  gen(id: ID): Promise<Model<*, TRaw, *, *> | null> {
+  gen(id: ID): Promise<TModel | null> {
     return this.__firebaseCollection
       .doc(id)
       .get()
@@ -28,7 +32,11 @@ export class ModelFetcher<TModelName: string, TRaw: ModelStub<TModelName>> {
   }
 }
 
-export class ModelMutator<TModelName: string, TRaw: ModelStub<TModelName>> {
+export class ModelMutator<
+  TModelName: string,
+  TRaw: ModelStub<TModelName>,
+  TModel: Model<TModelName, TRaw>,
+> {
   // ---------------------------------------------------------------------------
   // MUST OVERRIDE
   // ---------------------------------------------------------------------------
@@ -38,7 +46,7 @@ export class ModelMutator<TModelName: string, TRaw: ModelStub<TModelName>> {
   // ---------------------------------------------------------------------------
   // DO NOT OVERRIDE
   // ---------------------------------------------------------------------------
-  genSet(model: Model<*, TRaw, *, *>): Promise<void> {
+  genSet(model: TModel): Promise<void> {
     return this.__firebaseCollection.doc(model.id).set(model);
   }
 
@@ -49,25 +57,14 @@ export class ModelMutator<TModelName: string, TRaw: ModelStub<TModelName>> {
   }
 }
 
-export class Model<
-  TModelName: string,
-  TRawModel: ModelStub<TModelName>,
-  TFetcher: ModelFetcher<TModelName, *>,
-  TMutator: ModelMutator<TModelName, *>,
-> {
-  // ---------------------------------------------------------------------------
-  // MUST OVERRIDE
-  // ---------------------------------------------------------------------------
-  static Fetcher: TFetcher;
-  static Mutator: TMutator;
-
+export class Model<TModelName: string, TRawModel: ModelStub<TModelName>> {
   static collectionName: string;
   static modelName: TModelName;
 
   // ---------------------------------------------------------------------------
   // MAY OVERRIDE
   // ---------------------------------------------------------------------------
-  equals(that: Model<*, TRawModel, TFetcher, TMutator>): boolean {
+  equals(that: Model<TModelName, TRawModel>): boolean {
     if (this === that) {
       return true;
     }

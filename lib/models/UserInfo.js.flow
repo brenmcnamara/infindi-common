@@ -1,32 +1,79 @@
 /* @flow */
 
-import { getFirebaseAdminOrClient } from '../config';
+import { Model } from './_Model';
+
+import type { Map } from 'immutable';
 
 import type { ID, ModelStub } from '../../types/core';
 
-/**
- * Firebase has a pre-defined User type, which is a bare-bones model containing
- * some basic information for authentication purposes. The 'UserInfo' Object
- * contains other, relevant informtion about a User that we care about.
- * This has a 1:1 relationship between a firebase User and shares the same
- * id.
- */
-export type UserInfo = ModelStub<'UserInfo'> & {
+// -----------------------------------------------------------------------------
+//
+// RAW
+//
+// -----------------------------------------------------------------------------
+
+export type UserInfoRaw = ModelStub<'UserInfo'> & {
   +firstName: string,
   +isAdmin: boolean,
   +isTestUser: boolean,
   +lastName: string,
 };
 
-export function getUserInfoCollection() {
-  return getFirebaseAdminOrClient().firestore().collection('UserInfo');
+export type UserInfoCollection = Map<ID, UserInfo>;
+
+// -----------------------------------------------------------------------------
+//
+// MODEL
+//
+// -----------------------------------------------------------------------------
+
+export default class UserInfo extends Model<'UserInfo', UserInfoRaw> {
+  // ---------------------------------------------------------------------------
+  // EXTENDING MODEL (boilerplate)
+  // ---------------------------------------------------------------------------
+  static collectionName = 'UserInfo';
+  static modelName = 'UserInfo';
+
+  __raw: UserInfoRaw; // TODO: Why do I need to define this?
+
+  // ---------------------------------------------------------------------------
+  // CREATORS (custom)
+  // ---------------------------------------------------------------------------
+
+  // ---------------------------------------------------------------------------
+  // ORIGINAL GETTERS (boilerplate)
+  // ---------------------------------------------------------------------------
+  get firstName(): string {
+    return this.__raw.firstName;
+  }
+
+  get isAdmin(): boolean {
+    return this.__raw.isAdmin;
+  }
+
+  get isTestUser(): boolean {
+    return this.__raw.isTestUser;
+  }
+
+  get lastName(): string {
+    return this.__raw.lastName;
+  }
+
+  // ---------------------------------------------------------------------------
+  // ORIGINAL GETTERS (custom)
+  // ---------------------------------------------------------------------------
+
+  // ---------------------------------------------------------------------------
+  // ORIGINAL SETTERS (boilerplate)
+  // ---------------------------------------------------------------------------
+
+  // ---------------------------------------------------------------------------
+  // DERIVED SETTERS (custom)
+  // ---------------------------------------------------------------------------
 }
 
-export async function genFetchUserInfo(id: ID): Promise<UserInfo | null> {
-  const doc = await getUserInfoCollection().doc(id).get();
-  return doc.exists ? doc.data() : null;
-}
-
-export async function genSetUserInfo(userInfo: UserInfo) {
-  return getUserInfoCollection().doc(userInfo.id).set(userInfo);
-}
+// -----------------------------------------------------------------------------
+//
+// UTILITIES
+//
+// -----------------------------------------------------------------------------

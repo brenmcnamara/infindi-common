@@ -3,7 +3,7 @@
 import { getFirebase } from '../config';
 
 import type { User as FirebaseUser } from '../../types/firebase';
-import type { UserInfo } from './UserInfo';
+import type { UserInfoRaw } from './UserInfo';
 
 export type LoginCredentials = {|
   +email: string,
@@ -13,7 +13,7 @@ export type LoginCredentials = {|
 export type LoginPayload = {|
   +firebaseUser: FirebaseUser,
   +idToken: string,
-  +userInfo: UserInfo,
+  +userInfo: UserInfoRaw,
 |};
 
 export type SignUpForm = {

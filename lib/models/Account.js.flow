@@ -5,7 +5,7 @@ import * as Immutable from 'immutable';
 import invariant from 'invariant';
 
 import { createModelStub, createPointer } from '../db-utils';
-import { Model, ModelFetcher, ModelMutator } from './_Model';
+import { Model } from './_Model';
 
 import type { Account as YodleeAccount } from '../../types/yodlee-v1.0';
 import type { Dollars, ID, ModelStub, Pointer } from '../../types/core';
@@ -46,58 +46,14 @@ export type AccountCollection = Immutable.Map<ID, Account>;
 
 // -----------------------------------------------------------------------------
 //
-// FETCHER
-//
-// -----------------------------------------------------------------------------
-
-class AccountFetcher extends ModelFetcher<'Account', AccountRaw> {
-  static collectionName = 'Accounts';
-  static modelName = 'Account';
-
-  genCollectionFromAccountLink(accountLinkID: ID): Promise<AccountCollection> {
-    return this.__firebaseCollection
-      .where('accountLinkRef.refID', '==', accountLinkID)
-      .get()
-      .then(snapshot =>
-        Immutable.Map(
-          snapshot.docs.map(doc => {
-            const account = Account.fromRaw(doc.data());
-            return [account.id, account];
-          }),
-        ),
-      );
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// MUTATOR
-//
-// -----------------------------------------------------------------------------
-
-class AccountMutator extends ModelMutator<'Account', AccountRaw> {
-  static collectionName = 'Accounts';
-  static modelName = 'Account';
-}
-
-// -----------------------------------------------------------------------------
-//
 // MODEL
 //
 // -----------------------------------------------------------------------------
 
-export default class Account extends Model<
-  'Account',
-  AccountRaw,
-  AccountFetcher,
-  AccountMutator,
-> {
+export default class Account extends Model<'Account', AccountRaw> {
   // ---------------------------------------------------------------------------
   // EXTENDING MODEL (boilerplate)
   // ---------------------------------------------------------------------------
-  static Fetcher: AccountFetcher = new AccountFetcher();
-  static Mutator: AccountMutator = new AccountMutator();
-
   static collectionName = 'Accounts';
   static modelName = 'Account';
 
