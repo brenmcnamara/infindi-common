@@ -50,6 +50,10 @@ export type AccountCollection = Immutable.Map<ID, Account>;
 //
 // -----------------------------------------------------------------------------
 
+/**
+ * A financial account of user. This can be a bank account, investment account,
+ * credit card account, etc...
+ */
 export default class Account extends Model<'Account', AccountRaw> {
   // ---------------------------------------------------------------------------
   // EXTENDING MODEL (boilerplate)

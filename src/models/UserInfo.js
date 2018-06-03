@@ -27,6 +27,9 @@ export type UserInfoCollection = Map<ID, UserInfo>;
 //
 // -----------------------------------------------------------------------------
 
+/**
+ * Core object representing a user and his / her data.
+ */
 export default class UserInfo extends Model<'UserInfo', UserInfoRaw> {
   // ---------------------------------------------------------------------------
   // EXTENDING MODEL (boilerplate)
