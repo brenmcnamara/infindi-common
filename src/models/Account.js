@@ -152,7 +152,7 @@ export default class Account extends Model<
   // ---------------------------------------------------------------------------
   // ORIGINAL GETTERS (custom)
   // ---------------------------------------------------------------------------
-  get type(): string {
+  get accountType(): string {
     const { sourceOfTruth } = this.__raw;
     invariant(
       sourceOfTruth.type === 'YODLEE',
