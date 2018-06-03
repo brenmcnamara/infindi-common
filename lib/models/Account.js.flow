@@ -106,7 +106,7 @@ export default class Account extends Model<'Account', AccountRaw> {
   }
 
   // ---------------------------------------------------------------------------
-  // ORIGINAL GETTERS (custom)
+  // COMPUTED GETTERS (custom)
   // ---------------------------------------------------------------------------
   get accountType(): string {
     const { sourceOfTruth } = this.__raw;
@@ -373,7 +373,7 @@ export default class Account extends Model<'Account', AccountRaw> {
   // ---------------------------------------------------------------------------
 
   // ---------------------------------------------------------------------------
-  // DERIVED SETTERS (custom)
+  // COMPUTED SETTERS (custom)
   // ---------------------------------------------------------------------------
   setYodlee(yodleeAccount: YodleeAccount): Account {
     const sourceOfTruth = { type: 'YODLEE', value: yodleeAccount };

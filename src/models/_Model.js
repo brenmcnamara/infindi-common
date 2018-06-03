@@ -3,6 +3,15 @@
 import { getFirebaseAdminOrClient } from '../config';
 
 import type { ID, ModelStub } from '../../types/core';
+import type { Map } from 'immutable';
+
+// eslint-disable-next-line flowtype/generic-spacing
+type ModelCollection<TModelName: string, TRaw: ModelStub<TModelName>> = Map<
+  ID,
+  Model<TModelName, TRaw>,
+>;
+
+const BATCH_LIMIT = 100;
 
 export class ModelFetcher<
   TModelName: string,
@@ -48,6 +57,25 @@ export class ModelMutator<
   // ---------------------------------------------------------------------------
   genSet(model: TModel): Promise<void> {
     return this.__firebaseCollection.doc(model.id).set(model);
+  }
+
+  async genSetCollection(
+    collection: ModelCollection<TModelName, TRaw>,
+  ): Promise<void> {
+      const db = getFirebaseAdminOrClient().firestore();
+      let batchCount = 0;
+      let currentBatch = db.batch();
+      const batches = [currentBatch];
+      collection.forEach(model => {
+        const ref = this.__firebaseCollection.doc(model.id);
+        currentBatch.set(ref, model);
+        ++batchCount;
+        if (batchCount > BATCH_LIMIT) {
+          currentBatch = db.batch();
+          batches.push(currentBatch);
+        }
+      });
+      await Promise.all(batches.map(b => b.commit()));
   }
 
   get __firebaseCollection(): * {

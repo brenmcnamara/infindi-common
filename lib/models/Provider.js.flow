@@ -3,19 +3,23 @@
 import invariant from 'invariant';
 
 import { createModelStub } from '../db-utils';
-import { getFirebaseAdmin, getFirebaseAdminOrClient } from '../config';
+import { Model } from './_Model';
 
 import type { ID, ModelStub } from '../../types/core';
+import type { Map } from 'immutable';
 import type { ProviderFull as YodleeProviderFull } from '../../types/yodlee-v1.0';
 
-export type Provider = ModelStub<'Provider'> & {
+// -----------------------------------------------------------------------------
+//
+// RAW
+//
+// -----------------------------------------------------------------------------
+
+export type ProviderRaw = ModelStub<'Provider'> & {
   isDeprecated: boolean,
   quirkCount: number,
   quirks: Array<string>,
-  sourceOfTruth: {|
-    +type: 'YODLEE',
-    +value: YodleeProviderFull,
-  |},
+  sourceOfTruth: SourceOfTruth,
 };
 
 export type SourceOfTruth = {|
@@ -23,75 +27,100 @@ export type SourceOfTruth = {|
   +value: YodleeProviderFull,
 |};
 
-export function getProviderCollection() {
-  return getFirebaseAdminOrClient()
-    .firestore()
-    .collection('Providers');
-}
+export type ProviderCollection = Map<ID, Provider>;
 
-export function getProviderName(provider: Provider): string {
-  invariant(
-    provider.sourceOfTruth.type === 'YODLEE',
-    'Expecting provider to come from YODLEE',
-  );
-  return provider.sourceOfTruth.value.name;
-}
+// -----------------------------------------------------------------------------
+//
+// MODEL
+//
+// -----------------------------------------------------------------------------
 
-export function createProvider(
-  sourceOfTruth: SourceOfTruth,
-  quirks: Array<string>,
-): Provider {
-  return {
-    ...createModelStub('Provider'),
-    id: getIDFromSourceOfTruth(sourceOfTruth),
-    isDeprecated: false,
-    quirkCount: quirks.length,
-    quirks,
-    sourceOfTruth,
-  };
-}
+export default class Provider extends Model<'Provider', ProviderRaw> {
+  // ---------------------------------------------------------------------------
+  // EXTENDING MODEL (boilerplate)
+  // ---------------------------------------------------------------------------
+  static collectionName = 'Providers';
+  static modelName = 'Provider';
 
-export function genFetchProvider(id: ID): Promise<Provider | null> {
-  return getProviderCollection()
-    .doc(id)
-    .get()
-    .then(doc => (doc.exists ? doc.data() : null));
-}
+  __raw: ProviderRaw;
 
-export function genCreateProvider(provider: Provider): Promise<void> {
-  return getProviderCollection().set(provider.id, provider);
-}
+  // ---------------------------------------------------------------------------
+  // CREATORS (custom)
+  // ---------------------------------------------------------------------------
 
-export function genUpdateProvider(provider: Provider): Promise<void> {
-  return getProviderCollection().update(provider.id, provider);
-}
+  static create(sourceOfTruth: SourceOfTruth, quirks: Array<string>): Provider {
+    const raw = {
+      ...createModelStub('Provider'),
+      id: calculateIDFromSourceOfTruth(sourceOfTruth),
+      isDeprecated: false,
+      quirkCount: quirks.length,
+      quirks,
+      sourceOfTruth,
+    };
+    return Provider.fromRaw(raw);
+  }
 
-export function genUpsertProvider(provider: Provider): Promise<void> {
-  return getProviderCollection().set(provider.id, provider);
-}
+  // ---------------------------------------------------------------------------
+  // ORIGINAL GETTERS (boilerplate)
+  // ---------------------------------------------------------------------------
+  get isDeprecated(): boolean {
+    return this.__raw.isDeprecated;
+  }
 
-const BATCH_LIMIT = 100;
+  get quirkCount(): number {
+    return this.__raw.quirkCount;
+  }
 
-export function genUpsertProviders(providers: Array<Provider>): Promise<mixed> {
-  return Promise.resolve().then(() => {
-    const db = getFirebaseAdmin().firestore();
-    let batchCount = 0;
-    let currentBatch = db.batch();
-    const batches = [currentBatch];
-    providers.forEach(p => {
-      const ref = getProviderCollection().doc(p.id);
-      currentBatch.set(ref, p);
-      ++batchCount;
-      if (batchCount > BATCH_LIMIT) {
-        currentBatch = db.batch();
-        batches.push(currentBatch);
+  get quirks(): Array<string> {
+    return this.__raw.quirks;
+  }
+
+  get sourceOfTruth(): SourceOfTruth {
+    return this.__raw.sourceOfTruth;
+  }
+
+  // ---------------------------------------------------------------------------
+  // COMPUTED GETTERS (custom)
+  // ---------------------------------------------------------------------------
+  get name(): string {
+    invariant(
+      this.sourceOfTruth.type === 'YODLEE',
+      'Expecting provider to come from YODLEE',
+    );
+    return this.sourceOfTruth.value.name;
+  }
+
+  get sourceOfTruthID(): ID {
+    switch (this.sourceOfTruth.type) {
+      case 'YODLEE': {
+        return String(this.sourceOfTruth.value.id);
       }
-    });
-    return Promise.all(batches.map(b => b.commit()));
-  });
+
+      default:
+        invariant(
+          false,
+          'Unrecognized sourceOfTruth: %s',
+          this.sourceOfTruth.type,
+        );
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // ORIGINAL SETTERS (boilerplate)
+  // ---------------------------------------------------------------------------
+
+  // ---------------------------------------------------------------------------
+  // COMPUTED SETTERS (custom)
+  // ---------------------------------------------------------------------------
 }
 
-function getIDFromSourceOfTruth(sourceOfTruth: SourceOfTruth): ID {
+// -----------------------------------------------------------------------------
+//
+// UTILITIES
+//
+// -----------------------------------------------------------------------------
+
+function calculateIDFromSourceOfTruth(sourceOfTruth: SourceOfTruth): ID {
   switch (sourceOfTruth.type) {
     case 'YODLEE': {
       return String(sourceOfTruth.value.id);
