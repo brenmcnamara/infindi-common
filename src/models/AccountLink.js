@@ -3,15 +3,22 @@
 import invariant from 'invariant';
 
 import { createModelStub, createPointer } from '../db-utils';
-import { getFirebaseAdminOrClient } from '../config';
+import { Model } from './_Model';
 
 import type { ID, ModelStub, Pointer } from '../../types/core';
 import type {
   LoginForm as YodleeLoginForm,
   ProviderAccount as YodleeProviderAccount,
 } from '../../types/yodlee-v1.0';
+import type { Map } from 'immutable';
 
-export type AccountLink = ModelStub<'AccountLink'> & {
+// -----------------------------------------------------------------------------
+//
+// RAW
+//
+// -----------------------------------------------------------------------------
+
+export type AccountLinkRaw = ModelStub<'AccountLink'> & {
   +providerName: string,
   +providerRef: Pointer<'Provider'>,
   +sourceOfTruth: SourceOfTruth,
@@ -39,180 +46,169 @@ export type AccountLinkStatus =
   | 'MFA / WAITING_FOR_LOGIN_FORM'
   | 'SUCCESS';
 
-export function getAccountLinkCollection() {
-  return getFirebaseAdminOrClient()
-    .firestore()
-    .collection('AccountLinks');
-}
+export type AccountLinkCollection = Map<ID, AccountLink>;
 
-export function createAccountLink(
-  sourceOfTruth: SourceOfTruth,
-  userID: ID,
-  providerID: ID,
-  providerName: string,
-): AccountLink {
-  return {
-    ...createModelStub('AccountLink'),
-    providerName,
-    providerRef: createPointer('Provider', providerID),
-    sourceOfTruth,
-    status: calculateAccountLinkStatus(sourceOfTruth),
-    userRef: createPointer('User', userID),
-  };
-}
+// -----------------------------------------------------------------------------
+//
+// MODEL
+//
+// -----------------------------------------------------------------------------
 
-export function createAccountLinkYodlee(
-  yodleeProviderAccount: YodleeProviderAccount,
-  userID: ID,
-  providerID: ID,
-  providerName: string,
-): AccountLink {
-  const sourceOfTruth = {
-    loginForm:
+export default class AccountLink extends Model<'AccountLink', AccountLinkRaw> {
+  // ---------------------------------------------------------------------------
+  // EXTENDING MODEL (boilerplate)
+  // ---------------------------------------------------------------------------
+  static collectionName = 'AccountLinks';
+  static modelName = 'AccountLink';
+
+  __raw: AccountLinkRaw; // TODO: Why do I need to define this?
+
+  // ---------------------------------------------------------------------------
+  // CREATORS (custom)
+  // ---------------------------------------------------------------------------
+
+  static create(
+    sourceOfTruth: SourceOfTruth,
+    userID: ID,
+    providerID: ID,
+    providerName: string,
+  ): AccountLink {
+    return this.fromRaw({
+      ...createModelStub('AccountLink'),
+      providerName,
+      providerRef: createPointer('Provider', providerID),
+      sourceOfTruth,
+      status: calculateAccountLinkStatus(sourceOfTruth),
+      userRef: createPointer('User', userID),
+    });
+  }
+
+  static createYodlee(
+    yodleeProviderAccount: YodleeProviderAccount,
+    userID: ID,
+    providerID: ID,
+    providerName: string,
+  ): AccountLink {
+    const sourceOfTruth = {
+      loginForm:
+        yodleeProviderAccount.refreshInfo.additionalStatus ===
+        'USER_INPUT_REQUIRED'
+          ? yodleeProviderAccount.loginForm || null
+          : null,
+      providerAccount: yodleeProviderAccount,
+      type: 'YODLEE',
+    };
+    return this.create(sourceOfTruth, userID, providerID, providerName);
+  }
+
+  // ---------------------------------------------------------------------------
+  // ORIGINAL GETTERS (boilerplate)
+  // ---------------------------------------------------------------------------
+  get providerName(): string {
+    return this.__raw.providerName;
+  }
+
+  get providerRef(): Pointer<'Provider'> {
+    return this.__raw.providerRef;
+  }
+
+  get sourceOfTruth(): SourceOfTruth {
+    return this.__raw.sourceOfTruth;
+  }
+
+  get status(): AccountLinkStatus {
+    return this.__raw.status;
+  }
+
+  get userRef(): Pointer<'User'> {
+    return this.__raw.userRef;
+  }
+
+  // ---------------------------------------------------------------------------
+  // COMPUTED GETTERS (custom)
+  // ---------------------------------------------------------------------------
+  get isLinking(): boolean {
+    return this.status.startsWith('IN_PROGRESS');
+  }
+
+  get isPendingUserInput(): boolean {
+    return this.status === 'MFA / PENDING_USER_INPUT';
+  }
+
+  get isLinkSuccess(): boolean {
+    return this.status.startsWith('SUCCESS');
+  }
+
+  get isLinkFailure(): boolean {
+    return this.status.startsWith('FAILURE');
+  }
+
+  get isInMFA(): boolean {
+    return this.status.startsWith('MFA');
+  }
+
+  get loginForm(): YodleeLoginForm | null {
+    invariant(
+      this.sourceOfTruth.type === 'YODLEE',
+      'Expecting account link to come from YODLEE',
+    );
+    return this.sourceOfTruth.loginForm || null;
+  }
+
+  // ---------------------------------------------------------------------------
+  // ORIGINAL SETTERS (boilerplate)
+  // ---------------------------------------------------------------------------
+
+  // ---------------------------------------------------------------------------
+  // COMPUTED SETTERS (custom)
+  // ---------------------------------------------------------------------------
+  setSourceOfTruth(sourceOfTruth: SourceOfTruth): AccountLink {
+    const now = new Date();
+    return this.constructor.fromRaw({
+      ...this.__raw,
+      sourceOfTruth,
+      status: calculateAccountLinkStatus(sourceOfTruth),
+      updatedAt: now,
+    });
+  }
+
+  setStatus(status: AccountLinkStatus): AccountLink {
+    const now = new Date();
+    const sourceOfTruth =
+      this.sourceOfTruth.type === 'YODLEE' &&
+      status === 'MFA / WAITING_FOR_LOGIN_FORM'
+        ? {
+            loginForm: null,
+            providerAccount: this.sourceOfTruth.providerAccount,
+            type: 'YODLEE',
+          }
+        : this.sourceOfTruth;
+    return this.constructor.fromRaw({
+      ...this.__raw,
+      sourceOfTruth,
+      status,
+      updatedAt: now,
+    });
+  }
+
+  setYodlee(yodleeProviderAccount: YodleeProviderAccount): AccountLink {
+    const { sourceOfTruth } = this;
+    invariant(
+      sourceOfTruth.type === 'YODLEE',
+      'Expecting refresh info to come from YODLEE',
+    );
+    const loginForm =
       yodleeProviderAccount.refreshInfo.additionalStatus ===
       'USER_INPUT_REQUIRED'
-        ? yodleeProviderAccount.loginForm || null
-        : null,
-    providerAccount: yodleeProviderAccount,
-    type: 'YODLEE',
-  };
-  return createAccountLink(sourceOfTruth, userID, providerID, providerName);
-}
-
-export function updateAccountLink(
-  accountLink: AccountLink,
-  sourceOfTruth: SourceOfTruth,
-): AccountLink {
-  const now = new Date();
-  const newAccountLink: AccountLink = {
-    ...accountLink,
-    sourceOfTruth,
-    status: calculateAccountLinkStatus(sourceOfTruth),
-    updatedAt: now,
-  };
-  return newAccountLink;
-}
-
-export function updateAccountLinkStatus(
-  accountLink: AccountLink,
-  status: AccountLinkStatus,
-): AccountLink {
-  const now = new Date();
-  const sourceOfTruth =
-    accountLink.sourceOfTruth.type === 'YODLEE' &&
-    status === 'MFA / WAITING_FOR_LOGIN_FORM'
-      ? {
-          loginForm: null,
-          providerAccount: accountLink.sourceOfTruth.providerAccount,
-          type: 'YODLEE',
-        }
-      : accountLink.sourceOfTruth;
-  const newAccountLink: AccountLink = {
-    ...accountLink,
-    sourceOfTruth,
-    status,
-    updatedAt: now,
-  };
-  return newAccountLink;
-}
-
-export function updateAccountLinkYodlee(
-  accountLink: AccountLink,
-  yodleeProviderAccount: YodleeProviderAccount,
-): AccountLink {
-  const { sourceOfTruth } = accountLink;
-  invariant(
-    sourceOfTruth.type === 'YODLEE',
-    'Expecting refresh info to come from YODLEE',
-  );
-  const loginForm =
-    yodleeProviderAccount.refreshInfo.additionalStatus === 'USER_INPUT_REQUIRED'
-      ? yodleeProviderAccount.loginForm || getYodleeLoginForm(accountLink)
-      : null;
-  const newSourceOfTruth = {
-    loginForm,
-    providerAccount: yodleeProviderAccount,
-    type: 'YODLEE',
-  };
-  return updateAccountLink(accountLink, newSourceOfTruth);
-}
-
-export function genFetchAccountLink(id: ID): Promise<AccountLink | null> {
-  return getAccountLinkCollection()
-    .doc(id)
-    .get()
-    .then(doc => (doc.exists ? doc.data() : null));
-}
-
-export function genFetchAccountLinksForUser(
-  userID: ID,
-): Promise<Array<AccountLink>> {
-  return getAccountLinkCollection()
-    .where('userRef.refID', '==', userID)
-    .get()
-    .then(snapshot => {
-      const accountLinks = [];
-      snapshot.docs.forEach(doc => {
-        if (doc.exists) {
-          accountLinks.push(doc.data());
-        }
-      });
-      return accountLinks;
-    });
-}
-
-export function genFetchAccountLinkForProvider(
-  userID: ID,
-  providerID: ID,
-): Promise<AccountLink | null> {
-  return getAccountLinkCollection()
-    .where('userRef.refID', '==', userID)
-    .where('providerRef.refID', '==', providerID)
-    .get()
-    .then(snapshot => {
-      return snapshot.docs.length > 0 && snapshot.docs[0].exists
-        ? snapshot.docs[0].data()
+        ? yodleeProviderAccount.loginForm || this.loginForm
         : null;
-    });
-}
-
-// TODO: Rename to genSetAccountLink
-export function genCreateAccountLink(accountLink: AccountLink): Promise<void> {
-  return getAccountLinkCollection()
-    .doc(accountLink.id)
-    .set(accountLink);
-}
-
-export function genUpdateAccountLink(accountLink: AccountLink): Promise<void> {
-  return getAccountLinkCollection()
-    .doc(accountLink.id)
-    .update(accountLink);
-}
-
-export function genDeleteAccountLink(id: ID): Promise<void> {
-  return getAccountLinkCollection()
-    .doc(id)
-    .delete();
-}
-
-export function isLinking(accountLink: AccountLink): boolean {
-  return accountLink.status.startsWith('IN_PROGRESS');
-}
-
-export function isPendingUserInput(accountLink: AccountLink): boolean {
-  return accountLink.status === 'MFA / PENDING_USER_INPUT';
-}
-
-export function isLinkSuccess(accountLink: AccountLink): boolean {
-  return accountLink.status.startsWith('SUCCESS');
-}
-
-export function isLinkFailure(accountLink: AccountLink): boolean {
-  return accountLink.status.startsWith('FAILURE');
-}
-
-export function isInMFA(accountLink: AccountLink): boolean {
-  return accountLink.status.startsWith('MFA');
+    const newSourceOfTruth = {
+      loginForm,
+      providerAccount: yodleeProviderAccount,
+      type: 'YODLEE',
+    };
+    return this.setSourceOfTruth(newSourceOfTruth);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -257,12 +253,4 @@ function calculateAccountLinkStatus(
         : 'FAILURE / INTERNAL_SERVICE_FAILURE';
   }
   return 'SUCCESS';
-}
-
-function getYodleeLoginForm(accountLink: AccountLink): YodleeLoginForm | null {
-  invariant(
-    accountLink.sourceOfTruth.type === 'YODLEE',
-    'Expecting account link to come from YODLEE',
-  );
-  return accountLink.sourceOfTruth.loginForm || null;
 }

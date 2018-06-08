@@ -1,12 +1,14 @@
 /* @flow */
 
+import Provider from './Provider';
+
 import { ModelFetcher } from './_Model';
 
-import type Provider, { ProviderRaw } from './Provider';
+import type { ProviderRaw } from './Provider';
 
 class ProviderFetcher extends ModelFetcher<'Provider', ProviderRaw, Provider> {
   static collectionName = 'Providers';
   static modelName = 'Provider';
 }
 
-export default new ProviderFetcher();
+export default new ProviderFetcher(Provider);

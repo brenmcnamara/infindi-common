@@ -27,11 +27,24 @@ export class ModelFetcher<
   // ---------------------------------------------------------------------------
   // DO NOT OVERRIDE
   // ---------------------------------------------------------------------------
+  _Ctor: Class<TModel>;
+
+  constructor(Ctor: Class<TModel>) {
+    this._Ctor = Ctor;
+  }
+
   gen(id: ID): Promise<TModel | null> {
     return this.__firebaseCollection
       .doc(id)
       .get()
-      .then(doc => (doc.exists() ? doc.data() : null));
+      .then(doc => (doc.exists ? this._Ctor.fromRaw(doc.data()) : null));
+  }
+
+  genExists(id: ID): Promise<boolean> {
+    return this.__firebaseCollection
+      .doc(id)
+      .get()
+      .then(doc => doc.exists);
   }
 
   get __firebaseCollection(): * {
@@ -55,27 +68,37 @@ export class ModelMutator<
   // ---------------------------------------------------------------------------
   // DO NOT OVERRIDE
   // ---------------------------------------------------------------------------
+  _Ctor: Class<TModel>;
+
+  constructor(Ctor: Class<TModel>) {
+    this._Ctor = Ctor;
+  }
+
   genSet(model: TModel): Promise<void> {
-    return this.__firebaseCollection.doc(model.id).set(model);
+    return this.__firebaseCollection.doc(model.id).set(model.toRaw());
+  }
+
+  genDelete(id: ID): Promise<void> {
+    return this.__firebaseCollection.doc(id).delete();
   }
 
   async genSetCollection(
     collection: ModelCollection<TModelName, TRaw>,
   ): Promise<void> {
-      const db = getFirebaseAdminOrClient().firestore();
-      let batchCount = 0;
-      let currentBatch = db.batch();
-      const batches = [currentBatch];
-      collection.forEach(model => {
-        const ref = this.__firebaseCollection.doc(model.id);
-        currentBatch.set(ref, model);
-        ++batchCount;
-        if (batchCount > BATCH_LIMIT) {
-          currentBatch = db.batch();
-          batches.push(currentBatch);
-        }
-      });
-      await Promise.all(batches.map(b => b.commit()));
+    const db = getFirebaseAdminOrClient().firestore();
+    let batchCount = 0;
+    let currentBatch = db.batch();
+    const batches = [currentBatch];
+    collection.forEach(model => {
+      const ref = this.__firebaseCollection.doc(model.id);
+      currentBatch.set(ref, model.toRaw());
+      ++batchCount;
+      if (batchCount > BATCH_LIMIT) {
+        currentBatch = db.batch();
+        batches.push(currentBatch);
+      }
+    });
+    await Promise.all(batches.map(b => b.commit()));
   }
 
   get __firebaseCollection(): * {

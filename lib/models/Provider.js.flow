@@ -35,6 +35,10 @@ export type ProviderCollection = Map<ID, Provider>;
 //
 // -----------------------------------------------------------------------------
 
+/**
+ * A financial institution that provides third-party integration for accessing
+ * data.
+ */
 export default class Provider extends Model<'Provider', ProviderRaw> {
   // ---------------------------------------------------------------------------
   // EXTENDING MODEL (boilerplate)

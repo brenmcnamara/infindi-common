@@ -27,4 +27,4 @@ class AccountFetcher extends ModelFetcher<'Account', AccountRaw, Account> {
   }
 }
 
-export default new AccountFetcher();
+export default new AccountFetcher(Account);

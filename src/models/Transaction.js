@@ -3,118 +3,148 @@
 import invariant from 'invariant';
 
 import { createModelStub, createPointer } from '../db-utils';
-import { getFirebaseAdminOrClient } from '../config';
+import { Model } from './_Model';
 
-import type { AccountRaw } from './Account';
 import type { ID, ModelStub, Pointer } from '../../types/core';
+import type { Map, OrderedMap } from 'immutable';
 import type { Transaction as YodleeTransaction } from '../../types/yodlee-v1.0';
 
-/**
- * A bank transaction
- */
-export type Transaction = ModelStub<'Transaction'> & {
+// -----------------------------------------------------------------------------
+//
+// RAW
+//
+// -----------------------------------------------------------------------------
+
+export type TransactionRaw = ModelStub<'Transaction'> & {
   +accountRef: Pointer<'Account'>,
-  +sourceOfTruth: {|
-    +type: 'YODLEE',
-    +value: YodleeTransaction,
-  |},
+  +sourceOfTruth: SourceOfTruth,
   +transactionDate: Date,
   +userRef: Pointer<'User'>,
 };
 
-export function getTransactionCollection() {
-  return getFirebaseAdminOrClient()
-    .firestore()
-    .collection('Transactions');
-}
+export type SourceOfTruth = {|
+  +type: 'YODLEE',
+  +value: YodleeTransaction,
+|};
 
-export function createTransactionYodlee(
-  yodleeTransaction: YodleeTransaction,
-  userID: ID,
-  accountID: ID,
-): Transaction {
-  const date = yodleeTransaction.postDate || yodleeTransaction.transactionDate;
-  invariant(
-    date,
-    'Expecting either "postDate" or "transactionDate" property to be set on yodlee transaction: %s',
-    yodleeTransaction.id,
-  );
-  const dateComponents = date.split('-').map(c => parseInt(c, 10));
-  const transactionDate = new Date(
-    Date.UTC(dateComponents[0], dateComponents[1] - 1, dateComponents[2]),
-  );
+export type TransactionCollection = Map<ID, Transaction>;
 
-  return {
-    accountRef: createPointer('Account', accountID),
-    ...createModelStub('Transaction'),
-    sourceOfTruth: {
-      type: 'YODLEE',
-      value: yodleeTransaction,
-    },
-    transactionDate,
-    userRef: createPointer('User', userID),
-  };
-}
+export type TransactionOrderedCollection = OrderedMap<ID, Transaction>;
 
-export async function genFetchTransactionsForAccount(
-  account: AccountRaw,
-  limit: number = 20,
-): Promise<Array<Transaction>> {
-  let query = getTransactionCollection()
-    .where('accountRef.refID', '==', account.id)
-    // Transaction dates are rounded to the day, so we sort by createdDate as
-    // well as a fallback.
-    .orderBy('transactionDate', 'desc');
-  if (limit !== Infinity) {
-    query = query.limit(limit);
+// -----------------------------------------------------------------------------
+//
+// MODEL
+//
+// -----------------------------------------------------------------------------
+
+/**
+ * A transaction on a particular account.
+ */
+export default class Transaction extends Model<'Transaction', TransactionRaw> {
+  // ---------------------------------------------------------------------------
+  // EXTENDING MODEL (boilerplate)
+  // ---------------------------------------------------------------------------
+  static collectionName = 'Transactions';
+  static modelName = 'Transaction';
+
+  __raw: TransactionRaw; // TODO: Why do I need to define this?
+
+  // ---------------------------------------------------------------------------
+  // CREATORS (custom)
+  // ---------------------------------------------------------------------------
+
+  static createYodlee(
+    yodleeTransaction: YodleeTransaction,
+    userID: ID,
+    accountID: ID,
+  ): Transaction {
+    const date =
+      yodleeTransaction.postDate || yodleeTransaction.transactionDate;
+    invariant(
+      date,
+      'Expecting either "postDate" or "transactionDate" property to be set on yodlee transaction: %s',
+      yodleeTransaction.id,
+    );
+    const dateComponents = date.split('-').map(c => parseInt(c, 10));
+    const transactionDate = new Date(
+      Date.UTC(dateComponents[0], dateComponents[1] - 1, dateComponents[2]),
+    );
+
+    return this.fromRaw({
+      accountRef: createPointer('Account', accountID),
+      ...createModelStub('Transaction'),
+      sourceOfTruth: {
+        type: 'YODLEE',
+        value: yodleeTransaction,
+      },
+      transactionDate,
+      userRef: createPointer('User', userID),
+    });
   }
-  const snapshot = await query.get();
 
-  return snapshot.docs.filter(doc => doc.exists).map(doc => doc.data());
+  // ---------------------------------------------------------------------------
+  // ORIGINAL GETTERS (boilerplate)
+  // ---------------------------------------------------------------------------
+  get accountRef(): Pointer<'Account'> {
+    return this.__raw.accountRef;
+  }
+
+  get sourceOfTruth(): SourceOfTruth {
+    return this.__raw.sourceOfTruth;
+  }
+
+  get transactionDate(): Date {
+    return this.__raw.transactionDate;
+  }
+
+  get userRef(): Pointer<'User'> {
+    return this.__raw.userRef;
+  }
+
+  // ---------------------------------------------------------------------------
+  // COMPUTED GETTERS (custom)
+  // ---------------------------------------------------------------------------
+
+  get title(): string {
+    const { sourceOfTruth } = this;
+    invariant(
+      sourceOfTruth.type === 'YODLEE',
+      'Expecting transaction to come from YODLEE',
+    );
+    return sourceOfTruth.value.description.original;
+  }
+
+  get amount(): number {
+    const { sourceOfTruth } = this;
+    invariant(
+      sourceOfTruth.type === 'YODLEE',
+      'Expecting transaction to come from YODLEE',
+    );
+    const dollars = sourceOfTruth.value.amount.amount;
+    const isPositive = sourceOfTruth.value.baseType === 'CREDIT';
+    return isPositive ? dollars : -dollars;
+  }
+
+  get category(): string {
+    const { sourceOfTruth } = this;
+    invariant(
+      sourceOfTruth.type === 'YODLEE',
+      'Expecting transaction to come from YODLEE',
+    );
+    return sourceOfTruth.value.category;
+  }
+
+  // ---------------------------------------------------------------------------
+  // ORIGINAL SETTERS (boilerplate)
+  // ---------------------------------------------------------------------------
+
+  // ---------------------------------------------------------------------------
+  // COMPUTED SETTERS (custom)
+  // ---------------------------------------------------------------------------
 }
 
-export async function genDoesYodleeTransactionExist(
-  yodleeTransaction: YodleeTransaction,
-): Promise<boolean> {
-  const snapshot = await getTransactionCollection()
-    .where('sourceOfTruth.type', '==', 'YODLEE')
-    .where('sourceOfTruth.value.id', '==', yodleeTransaction.id)
-    .get();
-  const doc = snapshot.docs[0];
-  return Boolean(doc && doc.exists);
-}
-
-export function genCreateTransaction(transaction: Transaction): Promise<void> {
-  return getTransactionCollection()
-    .doc(transaction.id)
-    .set(transaction);
-}
-
-export function getTitle(transaction: Transaction): string {
-  const { sourceOfTruth } = transaction;
-  invariant(
-    sourceOfTruth.type === 'YODLEE',
-    'Expecting transaction to come from YODLEE',
-  );
-  return sourceOfTruth.value.description.original;
-}
-
-export function getAmount(transaction: Transaction): number {
-  const { sourceOfTruth } = transaction;
-  invariant(
-    sourceOfTruth.type === 'YODLEE',
-    'Expecting transaction to come from YODLEE',
-  );
-  const dollars = sourceOfTruth.value.amount.amount;
-  const isPositive = sourceOfTruth.value.baseType === 'CREDIT';
-  return isPositive ? dollars : -dollars;
-}
-
-export function getCategory(transaction: Transaction): string {
-  const { sourceOfTruth } = transaction;
-  invariant(
-    sourceOfTruth.type === 'YODLEE',
-    'Expecting transaction to come from YODLEE',
-  );
-  return sourceOfTruth.value.category;
-}
+// -----------------------------------------------------------------------------
+//
+// UTILITIES
+//
+// -----------------------------------------------------------------------------
