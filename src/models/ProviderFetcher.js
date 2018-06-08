@@ -2,7 +2,7 @@
 
 import Provider from './Provider';
 
-import { ModelFetcher } from './_Model';
+import { ModelFetcher } from './Model';
 
 import type { ProviderRaw } from './Provider';
 

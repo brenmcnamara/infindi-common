@@ -3,7 +3,7 @@
 import invariant from 'invariant';
 
 import { createModelStub } from '../db-utils';
-import { Model } from './_Model';
+import { Model } from './Model';
 
 import type { ID, ModelStub } from '../../types/core';
 import type { Map } from 'immutable';

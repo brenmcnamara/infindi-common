@@ -2,7 +2,7 @@
 
 import UserInfo from './UserInfo';
 
-import { ModelFetcher } from './_Model';
+import { ModelFetcher } from './Model';
 
 import type { UserInfoRaw } from './UserInfo';
 

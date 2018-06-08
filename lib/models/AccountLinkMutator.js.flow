@@ -2,7 +2,7 @@
 
 import AccountLink from './AccountLink';
 
-import { ModelMutator } from './_Model';
+import { ModelMutator } from './Model';
 
 import type { AccountLinkRaw } from './AccountLink';
 

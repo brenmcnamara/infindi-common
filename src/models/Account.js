@@ -5,7 +5,7 @@ import * as Immutable from 'immutable';
 import invariant from 'invariant';
 
 import { createModelStub, createPointer } from '../db-utils';
-import { Model } from './_Model';
+import { Model } from './Model';
 
 import type { Account as YodleeAccount } from '../../types/yodlee-v1.0';
 import type { Dollars, ID, ModelStub, Pointer } from '../../types/core';

@@ -3,7 +3,7 @@
 import Immutable from 'immutable';
 import Transaction from './Transaction';
 
-import { ModelFetcher } from './_Model';
+import { ModelFetcher } from './Model';
 
 import type { ID } from '../../types/core';
 import type { Transaction as YodleeTransaction } from '../../types/yodlee-v1.0';

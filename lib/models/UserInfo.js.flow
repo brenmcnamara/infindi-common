@@ -1,6 +1,6 @@
 /* @flow */
 
-import { Model } from './_Model';
+import { Model } from './Model';
 
 import type { Map } from 'immutable';
 

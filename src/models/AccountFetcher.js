@@ -3,7 +3,7 @@
 import * as Immutable from 'immutable';
 import Account from './Account';
 
-import { ModelFetcher } from './_Model';
+import { ModelFetcher } from './Model';
 
 import type { AccountCollection, AccountRaw } from './Account';
 import type { ID } from '../../types/core';

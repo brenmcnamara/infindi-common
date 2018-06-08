@@ -3,7 +3,7 @@
 import invariant from 'invariant';
 
 import { createModelStub, createPointer } from '../db-utils';
-import { Model } from './_Model';
+import { Model } from './Model';
 
 import type { ID, ModelStub, Pointer } from '../../types/core';
 import type { Map, OrderedMap } from 'immutable';

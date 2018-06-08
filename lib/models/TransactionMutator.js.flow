@@ -2,7 +2,7 @@
 
 import Transaction from './Transaction';
 
-import { ModelMutator } from './_Model';
+import { ModelMutator } from './Model';
 
 import type { TransactionRaw } from './Transaction';
 

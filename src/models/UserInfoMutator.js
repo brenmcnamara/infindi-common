@@ -2,7 +2,7 @@
 
 import UserInfo from './UserInfo';
 
-import { ModelMutator } from './_Model';
+import { ModelMutator } from './Model';
 
 import type { UserInfoRaw } from './UserInfo';
 

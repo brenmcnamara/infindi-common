@@ -3,7 +3,7 @@
 import AccountLink from './AccountLink';
 import Immutable from 'immutable';
 
-import { ModelFetcher } from './_Model';
+import { ModelFetcher } from './Model';
 
 import type { AccountLinkCollection, AccountLinkRaw } from './AccountLink';
 import type { ID } from '../../types/core';

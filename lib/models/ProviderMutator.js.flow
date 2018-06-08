@@ -2,7 +2,7 @@
 
 import Provider from './Provider';
 
-import { ModelMutator } from './_Model';
+import { ModelMutator } from './Model';
 
 import type { ProviderRaw } from './Provider';
 
