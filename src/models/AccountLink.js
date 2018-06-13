@@ -251,7 +251,17 @@ function calculateAccountLinkStatus(
       ? 'FAILURE / MFA_FAILURE'
       : isLoginFailure
         ? 'FAILURE / BAD_CREDENTIALS'
-        : 'FAILURE / INTERNAL_SERVICE_FAILURE';
+        : isStatusCodeExternalServiceFailure(refreshInfo.statusCode)
+          ? 'FAILURE / EXTERNAL_SERVICE_FAILURE'
+          : 'FAILURE / INTERNAL_SERVICE_FAILURE';
   }
   return 'SUCCESS';
+}
+
+function isStatusCodeExternalServiceFailure(statusCode: ?number): boolean {
+  if (typeof statusCode !== 'number') {
+    return false;
+  }
+  // You can find status codes here: https://developer.yodlee.com/Data_Model/Resource_Provider_Accounts
+  return statusCode >= 400 && statusCode < 800;
 }
