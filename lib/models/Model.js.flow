@@ -6,10 +6,11 @@ import type { ID, ModelStub } from '../../types/core';
 import type { Map } from 'immutable';
 
 // eslint-disable-next-line flowtype/generic-spacing
-type ModelCollection<TModelName: string, TRaw: ModelStub<TModelName>> = Map<
-  ID,
-  Model<TModelName, TRaw>,
->;
+type ModelCollection<
+  TModelName: string,
+  TRaw: ModelStub<TModelName>,
+  TModel: Model<TModelName, TRaw>,
+> = Map<ID, TModel>;
 
 const BATCH_LIMIT = 100;
 
@@ -38,6 +39,23 @@ export class ModelFetcher<
       .doc(id)
       .get()
       .then(doc => (doc.exists ? this._Ctor.fromRaw(doc.data()) : null));
+  }
+
+  async genNullthrows(id: ID): Promise<TModel> {
+    const model = await this.gen(id);
+    if (!model) {
+      const errorCode = 'infindi/resource-not-found';
+      const errorMessage = `Could not find ${
+        this.constructor.modelName
+      } with id ${id}`;
+      const toString = `[${errorCode}]: ${errorMessage}`;
+      throw {
+        errorCode,
+        errorMessage,
+        toString,
+      };
+    }
+    return model;
   }
 
   genExists(id: ID): Promise<boolean> {
@@ -78,13 +96,9 @@ export class ModelMutator<
     return this.__firebaseCollection.doc(model.id).set(model.toRaw());
   }
 
-  genDelete(id: ID): Promise<void> {
-    return this.__firebaseCollection.doc(id).delete();
-  }
-
-  async genSetCollection(
-    collection: ModelCollection<TModelName, TRaw>,
-  ): Promise<void> {
+  async genSetCollection<
+    TCollection: ModelCollection<TModelName, TRaw, TModel>,
+  >(collection: TCollection): Promise<void> {
     const db = getFirebaseAdminOrClient().firestore();
     let batchCount = 0;
     let currentBatch = db.batch();
@@ -96,8 +110,34 @@ export class ModelMutator<
       if (batchCount > BATCH_LIMIT) {
         currentBatch = db.batch();
         batches.push(currentBatch);
+        batchCount = 0;
       }
     });
+    await Promise.all(batches.map(b => b.commit()));
+  }
+
+  genDelete(id: ID): Promise<void> {
+    return this.__firebaseCollection.doc(id).delete();
+  }
+
+  async genDeleteCollection<
+    TCollection: ModelCollection<TModelName, TRaw, TModel>,
+  >(collection: TCollection) {
+    const db = getFirebaseAdminOrClient().firestore();
+    let batchCount = 0;
+    let currentBatch = db.batch();
+    const batches = [currentBatch];
+    collection.forEach(model => {
+      const ref = this.__firebaseCollection.doc(model.id);
+      currentBatch.delete(ref);
+      ++batchCount;
+      if (batchCount > BATCH_LIMIT) {
+        currentBatch = db.batch();
+        batches.push(currentBatch);
+        batchCount = 0;
+      }
+    });
+
     await Promise.all(batches.map(b => b.commit()));
   }
 

@@ -12,6 +12,7 @@ class AccountFetcher extends ModelFetcher<'Account', AccountRaw, Account> {
   static collectionName = 'Accounts';
   static modelName = 'Account';
 
+  // TODO: From -> For
   genCollectionFromAccountLink(accountLinkID: ID): Promise<AccountCollection> {
     return this.__firebaseCollection
       .where('accountLinkRef.refID', '==', accountLinkID)
