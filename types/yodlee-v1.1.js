@@ -1,5 +1,8 @@
 /* @flow */
 
+import type { ID } from './core';
+import type { OrderedMap } from 'immutable';
+
 // TODO: ON ACCOUNT "faceAmount"
 
 // -----------------------------------------------------------------------------
@@ -68,6 +71,8 @@ export type Provider = {|
   +name: string,
   +status: string,
 |};
+
+export type ProviderOrderedCollection = OrderedMap<ID, Provider>;
 
 // -----------------------------------------------------------------------------
 //
