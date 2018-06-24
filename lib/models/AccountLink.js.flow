@@ -160,11 +160,25 @@ export default class AccountLink extends Model<'AccountLink', AccountLinkRaw> {
   }
 
   get loginForm(): YodleeLoginForm | null {
-    invariant(
-      this.sourceOfTruth.type === 'YODLEE',
-      'Expecting account link to come from YODLEE',
-    );
-    return this.sourceOfTruth.loginForm || null;
+    const { sourceOfTruth } = this;
+
+    switch (sourceOfTruth.type) {
+      case 'EMPTY': {
+        return null;
+      }
+
+      case 'YODLEE': {
+        return this.sourceOfTruth.loginForm || null;
+      }
+
+      default: {
+        return invariant(
+          false,
+          'Unrecognized AccountLink sourceOfTruth: %s',
+          sourceOfTruth.type,
+        );
+      }
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -206,7 +220,8 @@ export default class AccountLink extends Model<'AccountLink', AccountLinkRaw> {
   setYodlee(yodleeProviderAccount: YodleeProviderAccount): AccountLink {
     const { sourceOfTruth } = this;
     invariant(
-      sourceOfTruth.type === 'YODLEE',
+      sourceOfTruth.type === 'YODLEE' ||
+        (sourceOfTruth.type === 'EMPTY' && sourceOfTruth.target === 'YODLEE'),
       'Expecting refresh info to come from YODLEE',
     );
     const loginForm =
@@ -232,10 +247,15 @@ export default class AccountLink extends Model<'AccountLink', AccountLinkRaw> {
 function calculateAccountLinkStatus(
   sourceOfTruth: SourceOfTruth,
 ): AccountLinkStatus {
+  if (sourceOfTruth.type === 'EMPTY') {
+    return 'IN_PROGRESS / INITIALIZING';
+  }
+
   invariant(
     sourceOfTruth.type === 'YODLEE',
     'Calculating account link status only supports yodlee',
   );
+
   const { refreshInfo } = sourceOfTruth.providerAccount;
   const { loginForm } = sourceOfTruth;
 
