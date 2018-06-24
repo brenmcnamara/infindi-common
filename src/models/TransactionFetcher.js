@@ -26,7 +26,8 @@ class TransactionFetcher extends ModelFetcher<
   ): Promise<TransactionOrderedCollection> {
     let query = this.__firebaseCollection
       .where('userRef.refID')
-      .orderBy('transactionDate', 'desc');
+      .orderBy('transactionDate', 'desc')
+      .orderBy('id');
     if (limit !== Infinity) {
       query = query.limit(limit);
     }
@@ -46,7 +47,8 @@ class TransactionFetcher extends ModelFetcher<
   ): Promise<TransactionOrderedCollection> {
     let query = this.__firebaseCollection
       .where('accountLinkRef.refID', '==', accountLinkID)
-      .orderBy('transactionDate', 'desc');
+      .orderBy('transactionDate', 'desc')
+      .orderBy('id');
     if (limit !== Infinity) {
       query = query.limit(limit);
     }
@@ -68,7 +70,8 @@ class TransactionFetcher extends ModelFetcher<
       .where('accountRef.refID', '==', accountID)
       // Transaction dates are rounded to the day, so we sort by createdDate as
       // well as a fallback.
-      .orderBy('transactionDate', 'desc');
+      .orderBy('transactionDate', 'desc')
+      .orderBy('id');
     if (limit !== Infinity) {
       query = query.limit(limit);
     }
