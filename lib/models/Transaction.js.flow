@@ -16,6 +16,7 @@ import type { Transaction as YodleeTransaction } from '../../types/yodlee-v1.0';
 // -----------------------------------------------------------------------------
 
 export type TransactionRaw = ModelStub<'Transaction'> & {
+  +accountLinkRef: Pointer<'AccountLink'>,
   +accountRef: Pointer<'Account'>,
   +sourceOfTruth: SourceOfTruth,
   +transactionDate: Date,
@@ -57,6 +58,7 @@ export default class Transaction extends Model<'Transaction', TransactionRaw> {
     yodleeTransaction: YodleeTransaction,
     userID: ID,
     accountID: ID,
+    accountLinkID: ID,
   ): Transaction {
     const date =
       yodleeTransaction.postDate || yodleeTransaction.transactionDate;
@@ -71,6 +73,7 @@ export default class Transaction extends Model<'Transaction', TransactionRaw> {
     );
 
     return this.fromRaw({
+      accountLinkRef: createPointer('AccountLink', accountLinkID),
       accountRef: createPointer('Account', accountID),
       ...createModelStub('Transaction'),
       sourceOfTruth: {
@@ -85,6 +88,10 @@ export default class Transaction extends Model<'Transaction', TransactionRaw> {
   // ---------------------------------------------------------------------------
   // ORIGINAL GETTERS (boilerplate)
   // ---------------------------------------------------------------------------
+  get accountLinkRef(): Pointer<'AccountLink'> {
+    return this.__raw.accountLinkRef;
+  }
+
   get accountRef(): Pointer<'Account'> {
     return this.__raw.accountRef;
   }

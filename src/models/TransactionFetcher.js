@@ -7,7 +7,10 @@ import { ModelFetcher } from './Model';
 
 import type { ID } from '../../types/core';
 import type { Transaction as YodleeTransaction } from '../../types/yodlee-v1.0';
-import type { TransactionOrderedCollection, TransactionRaw } from './Transaction';
+import type {
+  TransactionOrderedCollection,
+  TransactionRaw,
+} from './Transaction';
 
 class TransactionFetcher extends ModelFetcher<
   'Transaction',
@@ -16,6 +19,26 @@ class TransactionFetcher extends ModelFetcher<
 > {
   static collectionName = 'Transactions';
   static modelName = 'Transaction';
+
+  async genOrderedCollectionForAccountLink(
+    accountLinkID: ID,
+    limit: number = 20,
+  ): Promise<TransactionOrderedCollection> {
+    let query = this.__firebaseCollection
+      .where('accountLinkRef.refID', '==', accountLinkID)
+      .orderBy('transactionDate', 'desc');
+    if (limit !== Infinity) {
+      query = query.limit(limit);
+    }
+    const snapshot = await query.get();
+
+    return Immutable.OrderedMap(
+      snapshot.docs.map(doc => {
+        const transaction = Transaction.fromRaw(doc.data());
+        return [transaction.id, transaction];
+      }),
+    );
+  }
 
   async genOrderedCollectionForAccount(
     accountID: ID,
@@ -33,8 +56,8 @@ class TransactionFetcher extends ModelFetcher<
 
     return Immutable.OrderedMap(
       snapshot.docs.map(doc => {
-        const accountLink = Transaction.fromRaw(doc.data());
-        return [accountLink.id, accountLink];
+        const transaction = Transaction.fromRaw(doc.data());
+        return [transaction.id, transaction];
       }),
     );
   }
