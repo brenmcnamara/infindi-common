@@ -26,7 +26,18 @@ export type AccountLinkRaw = ModelStub<'AccountLink'> & {
   +userRef: Pointer<'User'>,
 };
 
-export type SourceOfTruth = {|
+export type SourceOfTruth = SourceOfTruth$Empty | SourceOfTruth$Yodlee;
+
+/**
+ * Source of truth will be empty before the account is linked with anything.
+ * The account link needs to be created before we can link it to a source.
+ */
+export type SourceOfTruth$Empty = {|
+  +target: 'YODLEE',
+  +type: 'EMPTY',
+|};
+
+export type SourceOfTruth$Yodlee = {|
   +loginForm: YodleeLoginForm | null,
   +providerAccount: YodleeProviderAccount,
   +type: 'YODLEE',
