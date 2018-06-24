@@ -20,6 +20,26 @@ class TransactionFetcher extends ModelFetcher<
   static collectionName = 'Transactions';
   static modelName = 'Transaction';
 
+  async genOrderedCollectionForUser(
+    userID: ID,
+    limit: number = 20,
+  ): Promise<TransactionOrderedCollection> {
+    let query = this.__firebaseCollection
+      .where('userRef.refID')
+      .orderBy('transactionDate', 'desc');
+    if (limit !== Infinity) {
+      query = query.limit(limit);
+    }
+    const snapshot = await query.get();
+
+    return Immutable.OrderedMap(
+      snapshot.docs.map(doc => {
+        const transaction = Transaction.fromRaw(doc.data());
+        return [transaction.id, transaction];
+      }),
+    );
+  }
+
   async genOrderedCollectionForAccountLink(
     accountLinkID: ID,
     limit: number = 20,
