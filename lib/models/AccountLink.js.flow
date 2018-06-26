@@ -44,6 +44,7 @@ export type SourceOfTruth$Yodlee = {|
 |};
 
 export type AccountLinkStatus =
+  | 'EMPTY'
   | 'FAILURE / BAD_CREDENTIALS'
   | 'FAILURE / EXTERNAL_SERVICE_FAILURE'
   | 'FAILURE / INTERNAL_SERVICE_FAILURE'
@@ -248,7 +249,7 @@ function calculateAccountLinkStatus(
   sourceOfTruth: SourceOfTruth,
 ): AccountLinkStatus {
   if (sourceOfTruth.type === 'EMPTY') {
-    return 'IN_PROGRESS / INITIALIZING';
+    return 'EMPTY';
   }
 
   invariant(
