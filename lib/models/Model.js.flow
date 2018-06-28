@@ -48,7 +48,7 @@ export class ModelFetcher<
       const errorMessage = `Could not find ${
         this.constructor.modelName
       } with id ${id}`;
-      const toString = `[${errorCode}]: ${errorMessage}`;
+      const toString = () => `[${errorCode}]: ${errorMessage}`;
       throw {
         errorCode,
         errorMessage,
