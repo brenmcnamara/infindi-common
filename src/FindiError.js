@@ -1,6 +1,7 @@
 /* @flow */
 
 export type ErrorCode =
+  | 'CORE / ASSERTION_FAILURE'
   | 'CORE / CODE_ERROR'
   | 'CORE / CRITIAL_ERROR_REQUIRES_IMMEDIATE_ADMIN_ATTENTION'
   | 'CORE / EXTERNAL_SERVICE_ERROR'
@@ -99,6 +100,13 @@ export default class FindiError {
       return entity;
     }
 
+    if (isMaybeInvariantViolation(entity)) {
+      return this.fromRaw({
+        errorCode: 'CORE / ASSERTION_FAILURE',
+        errorMessage: entity.toString(),
+      });
+    }
+
     if (entity instanceof Error) {
       return this.fromRaw({
         errorCode: 'CORE / CODE_ERROR',
@@ -146,6 +154,13 @@ export default class FindiError {
 // UTILITIES
 //
 // -----------------------------------------------------------------------------
+
+function isMaybeInvariantViolation(error: Object): boolean {
+  return (
+    typeof error.toString === 'function' &&
+    error.toString().startsWith('Invariant Violation:')
+  );
+}
 
 function isMaybeFirebaseError(error: Object): boolean {
   return typeof error.code === 'string' && typeof error.message === 'string';
