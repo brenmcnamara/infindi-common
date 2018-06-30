@@ -12,19 +12,19 @@ export type ErrorCode =
   | 'CORE / RESOURCE_NOT_FOUND'
   | 'CORE / UNKNOWN_ERROR';
 
-export type ErrorRaw = {|
+export type FindiErrorRaw = {|
   +errorCode: ErrorCode,
   +errorMessage: string,
 |};
 
 export default class FindiError {
-  _raw: ErrorRaw;
+  _raw: FindiErrorRaw;
 
-  constructor(raw: ErrorRaw) {
+  constructor(raw: FindiErrorRaw) {
     this._raw = raw;
   }
 
-  static fromRaw(raw: ErrorRaw): FindiError {
+  static fromRaw(raw: FindiErrorRaw): FindiError {
     return new FindiError(raw);
   }
 
@@ -130,6 +130,10 @@ export default class FindiError {
 
   get errorMessage(): string {
     return this._raw.errorMessage;
+  }
+
+  toRaw(): FindiErrorRaw {
+    return this._raw;
   }
 
   toString(): string {
