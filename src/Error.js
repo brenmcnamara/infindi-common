@@ -1,0 +1,155 @@
+/* @flow */
+
+export type ErrorCode =
+  | 'CORE / CODE_ERROR'
+  | 'CORE / CRITIAL_ERROR_REQUIRES_IMMEDIATE_ADMIN_ATTENTION'
+  | 'CORE / EXTERNAL_SERVICE_ERROR'
+  | 'CORE / EXTERNAL_SERVICE_DENIED'
+  | 'CORE / INCORRECT_EXTERNAL_SERVICE_CALL'
+  | 'CORE / PERMISSION_DENIED'
+  | 'CORE / NETWORK_ERROR'
+  | 'CORE / RESOURCE_NOT_FOUND'
+  | 'CORE / UNKNOWN_ERROR';
+
+export type ErrorRaw = {|
+  +errorCode: ErrorCode,
+  +errorMessage: string,
+|};
+
+export default class FindiError {
+  _raw: ErrorRaw;
+
+  constructor(raw: ErrorRaw) {
+    this._raw = raw;
+  }
+
+  static fromRaw(raw: ErrorRaw): FindiError {
+    return new FindiError(raw);
+  }
+
+  // https://firebase.google.com/docs/reference/js/firebase.auth.Error
+  static fromFirebaseError(error: Object): FindiError {
+    let errorCode;
+    switch (error.code) {
+      case 'auth/app-deleted':
+      case 'auth/invalid-api-key':
+        errorCode = 'CORE / CRITIAL_ERROR_REQUIRES_IMMEDIATE_ADMIN_ATTENTION';
+        break;
+
+      case 'auth/app-not-authorized':
+      case 'auth/invalid-user-token':
+      case 'auth/requires-recent-login':
+      case 'auth/unauthorized-domain':
+      case 'auth/user-disabled':
+      case 'auth/user-token-expired':
+        errorCode = 'CORE / PERMISSION_DENIED';
+        break;
+
+      case 'auth/argument-error':
+      case 'auth/operation-not-allowed':
+      case 'auth/web-storage-unsupported':
+        errorCode = 'CORE / INCORRECT_EXTERNAL_SERVICE_CALL';
+        break;
+
+      case 'auth/network-request-failed':
+        errorCode = 'CORE / NETWORK_ERROR';
+        break;
+
+      case 'auth/too-many-requests':
+        errorCode = 'CORE / EXTERNAL_SERVICE_DENIED';
+        break;
+
+      default:
+        errorCode = 'CORE / EXTERNAL_SERVICE_ERROR';
+        break;
+    }
+
+    return FindiError.fromRaw({
+      errorCode,
+      errorMessage: `{FIREBASE} ${error.message}`,
+    });
+  }
+
+  // https://developer.yodlee.com/FAQs/Error_Codes
+  // TODO: Implement this correctly.
+  static fromYodleeError(yodleeError: Object): FindiError {
+    let errorCode;
+    switch (yodleeError.errorCode) {
+      default:
+        errorCode = 'CORE / EXTERNAL_SERVICE_ERROR';
+        break;
+    }
+
+    return FindiError.fromRaw({
+      errorCode,
+      errorMessage: `{YODLEE} ${yodleeError.errorMessage}`,
+    });
+  }
+
+  static fromUnknownEntity(entity: mixed): FindiError {
+    if (!entity || typeof entity !== 'object') {
+      return this.fromRaw({
+        errorCode: 'CORE / UNKNOWN_ERROR',
+        errorMessage: 'An unknown error was encountered',
+      });
+    }
+
+    if (entity instanceof FindiError) {
+      return entity;
+    }
+
+    if (entity instanceof Error) {
+      return this.fromRaw({
+        errorCode: 'CORE / CODE_ERROR',
+        errorMessage: `${entity.toString()}\n${entity.stack}`,
+      });
+    }
+
+    if (isMaybeFirebaseError(entity)) {
+      return this.fromFirebaseError(entity);
+    }
+
+    if (isMaybeYodleeError(entity)) {
+      return this.fromYodleeError(entity);
+    }
+
+    // I have no idea what error this is...
+    return this.fromRaw({
+      errorCode: 'CORE / UNKNOWN_ERROR',
+      errorMessage:
+        typeof entity.toString === 'function'
+          ? entity.toString()
+          : 'An unknown error was encountered',
+    });
+  }
+
+  get errorCode(): ErrorCode {
+    return this._raw.errorCode;
+  }
+
+  get errorMessage(): string {
+    return this._raw.errorMessage;
+  }
+
+  toString(): string {
+    return `[${this.errorCode}]: ${this.errorMessage}`;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// UTILITIES
+//
+// -----------------------------------------------------------------------------
+
+function isMaybeFirebaseError(error: Object): boolean {
+  return typeof error.code === 'string' && typeof error.message === 'string';
+}
+
+function isMaybeYodleeError(error: Object): boolean {
+  return (
+    typeof error.errorCode === 'string' &&
+    typeof error.errorMessage === 'string' &&
+    !(error instanceof FindiError)
+  );
+}
