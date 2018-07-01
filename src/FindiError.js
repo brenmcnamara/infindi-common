@@ -2,7 +2,7 @@
 
 export type ErrorCode =
   | 'CORE / ASSERTION_FAILURE'
-  | 'CORE / CODE_ERROR'
+  | 'CORE / LOGICAL_ERROR'
   | 'CORE / CRITIAL_ERROR_REQUIRES_IMMEDIATE_ADMIN_ATTENTION'
   | 'CORE / EXTERNAL_SERVICE_ERROR'
   | 'CORE / EXTERNAL_SERVICE_DENIED'
@@ -109,7 +109,7 @@ export default class FindiError {
 
     if (entity instanceof Error) {
       return this.fromRaw({
-        errorCode: 'CORE / CODE_ERROR',
+        errorCode: 'CORE / LOGICAL_ERROR',
         errorMessage: `${entity.toString()}\n${entity.stack}`,
       });
     }

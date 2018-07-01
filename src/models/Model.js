@@ -1,5 +1,7 @@
 /* @flow */
 
+import FindiError from '../FindiError';
+
 import { getFirebaseAdminOrClient } from '../config';
 
 import type { ID, ModelStub } from '../../types/core';
@@ -44,16 +46,11 @@ export class ModelFetcher<
   async genNullthrows(id: ID): Promise<TModel> {
     const model = await this.gen(id);
     if (!model) {
-      const errorCode = 'infindi/resource-not-found';
-      const errorMessage = `Could not find ${
-        this.constructor.modelName
-      } with id ${id}`;
-      const toString = () => `[${errorCode}]: ${errorMessage}`;
-      throw {
-        errorCode,
-        errorMessage,
-        toString,
-      };
+      const { modelName } = this.constructor;
+      throw FindiError.fromRaw({
+        errorCode: 'CORE / RESOURCE_NOT_FOUND',
+        errorMessage: `Could not find ${modelName} with id ${id}`,
+      });
     }
     return model;
   }
