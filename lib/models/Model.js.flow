@@ -5,14 +5,21 @@ import FindiError from '../FindiError';
 import { getFirebaseAdminOrClient } from '../config';
 
 import type { ID, ModelStub } from '../../types/core';
-import type { Map } from 'immutable';
+import type { Map, OrderedMap } from 'immutable';
 
 // eslint-disable-next-line flowtype/generic-spacing
-type ModelCollection<
+export type ModelCollection<
   TModelName: string,
   TRaw: ModelStub<TModelName>,
   TModel: Model<TModelName, TRaw>,
 > = Map<ID, TModel>;
+
+// eslint-disable-next-line flowtype/generic-spacing
+export type ModelOrderedCollection<
+  TModelName: string,
+  TRaw: ModelStub<TModelName>,
+  TModel: Model<TModelName, TRaw>,
+> = OrderedMap<ID, TModel>;
 
 const BATCH_LIMIT = 100;
 
