@@ -13,4 +13,12 @@ export default class AccountQuery {
       accountLinkID,
     );
   }
+
+  forUser(userID: ID): ModelQuery {
+    return Account.FirebaseCollectionUNSAFE.where(
+      'userRef.refID',
+      '==',
+      userID,
+    );
+  }
 }
