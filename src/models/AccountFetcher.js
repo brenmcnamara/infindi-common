@@ -5,10 +5,20 @@ import Account from './Account';
 
 import { ModelFetcher } from './Model';
 
-import type { AccountCollection, AccountRaw } from './Account';
+import type {
+  AccountCollection,
+  AccountOrderedCollection,
+  AccountRaw,
+} from './Account';
 import type { ID } from '../../types/core';
 
-class AccountFetcher extends ModelFetcher<'Account', AccountRaw, Account> {
+class AccountFetcher extends ModelFetcher<
+  'Account',
+  AccountRaw,
+  Account,
+  AccountCollection,
+  AccountOrderedCollection,
+> {
   static collectionName = 'Accounts';
   static modelName = 'Account';
 

@@ -5,8 +5,9 @@ import invariant from 'invariant';
 import { createModelStub, createPointer } from '../db-utils';
 import { Model } from './Model';
 
+import type Immutable from 'immutable';
+
 import type { ID, ModelStub, Pointer } from '../../types/core';
-import type { Map, OrderedMap } from 'immutable';
 import type { Transaction as YodleeTransaction } from '../../types/yodlee-v1.0';
 
 // -----------------------------------------------------------------------------
@@ -28,9 +29,12 @@ export type SourceOfTruth = {|
   +value: YodleeTransaction,
 |};
 
-export type TransactionCollection = Map<ID, Transaction>;
-
-export type TransactionOrderedCollection = OrderedMap<ID, Transaction>;
+export type TransactionCollection = Immutable.Map<ID, Transaction>;
+// eslint-disable-next-line flowtype/generic-spacing
+export type TransactionOrderedCollection = Immutable.OrderedMap<
+  ID,
+  Transaction,
+>;
 
 // -----------------------------------------------------------------------------
 //

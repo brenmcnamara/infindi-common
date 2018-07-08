@@ -5,8 +5,9 @@ import invariant from 'invariant';
 import { createModelStub } from '../db-utils';
 import { Model } from './Model';
 
+import type Immutable from 'immutable';
+
 import type { ID, ModelStub } from '../../types/core';
-import type { Map } from 'immutable';
 import type { ProviderFull as YodleeProviderFull } from '../../types/yodlee-v1.0';
 
 // -----------------------------------------------------------------------------
@@ -27,7 +28,8 @@ export type SourceOfTruth = {|
   +value: YodleeProviderFull,
 |};
 
-export type ProviderCollection = Map<ID, Provider>;
+export type ProviderCollection = Immutable.Map<ID, Provider>;
+export type ProviderOrderedCollection = Immutable.OrderedMap<ID, Provider>;
 
 // -----------------------------------------------------------------------------
 //

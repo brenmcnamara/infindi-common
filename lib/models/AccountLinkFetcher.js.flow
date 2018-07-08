@@ -5,13 +5,19 @@ import Immutable from 'immutable';
 
 import { ModelFetcher } from './Model';
 
-import type { AccountLinkCollection, AccountLinkRaw } from './AccountLink';
+import type {
+  AccountLinkCollection,
+  AccountLinkOrderedCollection,
+  AccountLinkRaw,
+} from './AccountLink';
 import type { ID } from '../../types/core';
 
 class AccountLinkFetcher extends ModelFetcher<
   'AccountLink',
   AccountLinkRaw,
   AccountLink,
+  AccountLinkCollection,
+  AccountLinkOrderedCollection,
 > {
   static collectionName = 'AccountLinks';
   static modelName = 'AccountLink';

@@ -2,7 +2,7 @@
 
 import { Model } from './Model';
 
-import type { Map } from 'immutable';
+import type Immutable from 'immutable';
 
 import type { ID, ModelStub } from '../../types/core';
 
@@ -19,7 +19,8 @@ export type UserInfoRaw = ModelStub<'UserInfo'> & {
   +lastName: string,
 };
 
-export type UserInfoCollection = Map<ID, UserInfo>;
+export type UserInfoCollection = Immutable.Map<ID, UserInfo>;
+export type UserInfoOrderedCollection = Immutable.OrderedMap<ID, UserInfo>;
 
 // -----------------------------------------------------------------------------
 //

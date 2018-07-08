@@ -43,6 +43,7 @@ export type AccountSourceOfTruth$Yodlee = {|
 |};
 
 export type AccountCollection = Immutable.Map<ID, Account>;
+export type AccountOrderedCollection = Immutable.OrderedMap<ID, Account>;
 
 // -----------------------------------------------------------------------------
 //

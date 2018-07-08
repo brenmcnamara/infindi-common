@@ -1,10 +1,12 @@
 /* @flow */
 
 import FindiError from '../FindiError';
+import Immutable from 'immutable';
 
+import { createPointer } from '../db-utils';
 import { getFirebaseAdminOrClient } from '../config';
 
-import type { ID, ModelStub } from '../../types/core';
+import type { ID, ModelStub, Pointer } from '../../types/core';
 import type { Map, OrderedMap } from 'immutable';
 
 // eslint-disable-next-line flowtype/generic-spacing
@@ -21,12 +23,17 @@ export type ModelOrderedCollection<
   TModel: Model<TModelName, TRaw>,
 > = OrderedMap<ID, TModel>;
 
+export type ModelQuery = Object;
+export type ModelOrderedQuery = Object;
+
 const BATCH_LIMIT = 100;
 
 export class ModelFetcher<
   TModelName: string,
   TRaw: ModelStub<TModelName>,
   TModel: Model<TModelName, TRaw>,
+  TCollection: ModelCollection<TModelName, TRaw, TModel>,
+  TOrderedCollection: ModelOrderedCollection<TModelName, TRaw, TModel>,
 > {
   // ---------------------------------------------------------------------------
   // MUST OVERRIDE
@@ -48,6 +55,28 @@ export class ModelFetcher<
       .doc(id)
       .get()
       .then(doc => (doc.exists ? this._Ctor.fromRaw(doc.data()) : null));
+  }
+
+  async genQuery(query: ModelQuery): Promise<TCollection> {
+    // NOTE: Assuming firebase collection for now.
+    const snapshot = await query.get();
+    return Immutable.Map(
+      snapshot.docs.map(doc => {
+        const model: TModel = doc.data();
+        return [model.id, model];
+      }),
+    );
+  }
+
+  async genOrderedQuery(query: ModelOrderedQuery): Promise<TOrderedCollection> {
+    // NOTE: Assuming firebase collection for now.
+    const snapshot = await query.get();
+    return Immutable.OrderedMap(
+      snapshot.docs.map(doc => {
+        const model: TModel = doc.data();
+        return [model.id, model];
+      }),
+    );
   }
 
   async genNullthrows(id: ID): Promise<TModel> {
@@ -180,6 +209,14 @@ export class Model<TModelName: string, TRawModel: ModelStub<TModelName>> {
 
   constructor(raw: TRawModel) {
     this.__raw = raw;
+  }
+
+  static createPointer(id: ID): Pointer<TModelName> {
+    return createPointer(this.constructor.modelName, id);
+  }
+
+  createPointer(): Pointer<TModelName> {
+    return createPointer(this.constructor.modelName, this.id);
   }
 
   static fromRaw(raw: TRawModel): this {

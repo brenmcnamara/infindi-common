@@ -8,6 +8,7 @@ import { ModelFetcher } from './Model';
 import type { ID } from '../../types/core';
 import type { Transaction as YodleeTransaction } from '../../types/yodlee-v1.0';
 import type {
+  TransactionCollection,
   TransactionOrderedCollection,
   TransactionRaw,
 } from './Transaction';
@@ -16,6 +17,8 @@ class TransactionFetcher extends ModelFetcher<
   'Transaction',
   TransactionRaw,
   Transaction,
+  TransactionCollection,
+  TransactionOrderedCollection,
 > {
   static collectionName = 'Transactions';
   static modelName = 'Transaction';

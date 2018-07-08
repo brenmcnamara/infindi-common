@@ -4,9 +4,19 @@ import Provider from './Provider';
 
 import { ModelFetcher } from './Model';
 
-import type { ProviderRaw } from './Provider';
+import type {
+  ProviderCollection,
+  ProviderOrderedCollection,
+  ProviderRaw,
+} from './Provider';
 
-class ProviderFetcher extends ModelFetcher<'Provider', ProviderRaw, Provider> {
+class ProviderFetcher extends ModelFetcher<
+  'Provider',
+  ProviderRaw,
+  Provider,
+  ProviderCollection,
+  ProviderOrderedCollection,
+> {
   static collectionName = 'Providers';
   static modelName = 'Provider';
 }

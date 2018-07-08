@@ -5,12 +5,13 @@ import invariant from 'invariant';
 import { createModelStub, createPointer } from '../db-utils';
 import { Model } from './Model';
 
+import type Immutable from 'immutable';
+
 import type { ID, ModelStub, Pointer } from '../../types/core';
 import type {
   LoginForm as YodleeLoginForm,
   ProviderAccount as YodleeProviderAccount,
 } from '../../types/yodlee-v1.0';
-import type { Map } from 'immutable';
 
 // -----------------------------------------------------------------------------
 //
@@ -59,7 +60,12 @@ export type AccountLinkStatus =
   | 'MFA / WAITING_FOR_LOGIN_FORM'
   | 'SUCCESS';
 
-export type AccountLinkCollection = Map<ID, AccountLink>;
+export type AccountLinkCollection = Immutable.Map<ID, AccountLink>;
+// eslint-disable-next-line flowtype/generic-spacing
+export type AccountLinkOrderedCollection = Immutable.OrderedMap<
+  ID,
+  AccountLink,
+>;
 
 // -----------------------------------------------------------------------------
 //
