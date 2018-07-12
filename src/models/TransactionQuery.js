@@ -6,7 +6,7 @@ import type { ID } from '../../types/core';
 import type { ModelOrderedQuery } from './Model';
 
 export default class TransactionQuery {
-  orderedForAccount(accountID: ID): ModelOrderedQuery {
+  static orderedForAccount(accountID: ID): ModelOrderedQuery {
     return (
       Transaction.FirebaseCollectionUNSAFE.where(
         'accountRef.refID',
