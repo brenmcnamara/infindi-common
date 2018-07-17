@@ -189,7 +189,7 @@ export class Model<TModelName: string, TRawModel: ModelStub<TModelName>> {
   // MAY OVERRIDE
   // ---------------------------------------------------------------------------
   equals(that: Model<TModelName, TRawModel>): boolean {
-    if (this === that) {
+    if (this === that || this.__raw === that.__raw) {
       return true;
     }
 
