@@ -3,22 +3,30 @@
 import Account from './Account';
 
 import type { ID } from '../../types/core';
-import type { ModelQuery } from './Model';
+import type { ModelCollectionQuery } from './Model';
 
-export default class AccountQuery {
-  static forAccountLink(accountLinkID: ID): ModelQuery {
-    return Account.FirebaseCollectionUNSAFE.where(
-      'accountLinkRef.refID',
-      '==',
-      accountLinkID,
-    );
-  }
+const AccountQuery = {
+  Collection: {
+    forAccountLink(accountLinkID: ID): ModelCollectionQuery {
+      return Account.FirebaseCollectionUNSAFE.where(
+        'accountLinkRef.refID',
+        '==',
+        accountLinkID,
+      );
+    },
+  },
 
-  static forUser(userID: ID): ModelQuery {
-    return Account.FirebaseCollectionUNSAFE.where(
-      'userRef.refID',
-      '==',
-      userID,
-    );
-  }
-}
+  OrderedCollection: {},
+
+  Single: {
+    forUser(userID: ID): ModelCollectionQuery {
+      return Account.FirebaseCollectionUNSAFE.where(
+        'userRef.refID',
+        '==',
+        userID,
+      );
+    },
+  },
+};
+
+export default AccountQuery;

@@ -23,8 +23,9 @@ export type ModelOrderedCollection<
   TModel: Model<TModelName, TRaw>,
 > = OrderedMap<ID, TModel>;
 
-export type ModelQuery = Object;
-export type ModelOrderedQuery = Object;
+export type ModelCollectionQuery = Object;
+export type ModelOrderedCollectionQuery = Object;
+export type ModelSingleQuery = Object;
 
 const BATCH_LIMIT = 100;
 
@@ -57,23 +58,32 @@ export class ModelFetcher<
       .then(doc => (doc.exists ? this._Ctor.fromRaw(doc.data()) : null));
   }
 
-  async genQuery(query: ModelQuery): Promise<TCollection> {
+  async genSingleQuery(query: ModelSingleQuery): Promise<TModel | null> {
+    // NOTE: Assuming firebase collection for now.
+    const snapshot = await query.get();
+    const doc = snapshot.docs[0];
+    return doc && doc.exists ? this._Ctor.fromRaw(doc.data()) : null;
+  }
+
+  async genCollectionQuery(query: ModelCollectionQuery): Promise<TCollection> {
     // NOTE: Assuming firebase collection for now.
     const snapshot = await query.get();
     return Immutable.Map(
       snapshot.docs.map(doc => {
-        const model: TModel = doc.data();
+        const model: TModel = this._Ctor.fromRaw(doc.data());
         return [model.id, model];
       }),
     );
   }
 
-  async genOrderedQuery(query: ModelOrderedQuery): Promise<TOrderedCollection> {
+  async genOrderedCollectionQuery(
+    query: ModelOrderedCollectionQuery,
+  ): Promise<TOrderedCollection> {
     // NOTE: Assuming firebase collection for now.
     const snapshot = await query.get();
     return Immutable.OrderedMap(
       snapshot.docs.map(doc => {
-        const model: TModel = doc.data();
+        const model: TModel = this._Ctor.fromRaw(doc.data());
         return [model.id, model];
       }),
     );

@@ -1,3 +1,11 @@
 /* @flow */
 
-export default class UserInfoQuery {}
+const UserInfoQuery = {
+  Collection: {},
+
+  OrderedCollection: {},
+
+  Single: {},
+};
+
+export default UserInfoQuery;

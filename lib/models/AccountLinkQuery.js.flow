@@ -3,14 +3,31 @@
 import AccountLink from './AccountLink';
 
 import type { ID } from '../../types/core';
-import type { ModelQuery } from './Model';
+import type { ModelCollectionQuery, ModelSingleQuery } from './Model';
 
-export default class AccountLinkQuery {
-  static forUser(userID: ID): ModelQuery {
-    return AccountLink.FirebaseCollectionUNSAFE.where(
-      'userRef.refID',
-      '==',
-      userID,
-    );
-  }
-}
+const AccountLinkQuery = {
+  Collection: {
+    forUser(userID: ID): ModelCollectionQuery {
+      return AccountLink.FirebaseCollectionUNSAFE.where(
+        'userRef.refID',
+        '==',
+        userID,
+      );
+    },
+  },
+
+  OrderedCollection: {},
+
+  Single: {
+    forUserAndProvider(userID: ID, providerID: ID): ModelSingleQuery {
+      return AccountLink.FirebaseCollectionUNSAFE.where(
+        'userRef.refID',
+        '==',
+        userID,
+      )
+        .where('providerRef.refID', '==', providerID);
+    },
+  },
+};
+
+export default AccountLinkQuery;

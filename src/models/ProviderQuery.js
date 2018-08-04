@@ -1,3 +1,11 @@
 /* @flow */
 
-export default class ProviderQuery {}
+const ProviderQuery = {
+  Collection: {},
+
+  OrderedCollection: {},
+
+  Single: {},
+};
+
+export default ProviderQuery;

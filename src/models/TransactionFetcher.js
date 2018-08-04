@@ -1,12 +1,9 @@
 /* @flow */
 
-import Immutable from 'immutable';
 import Transaction from './Transaction';
 
 import { ModelFetcher } from './Model';
 
-import type { ID } from '../../types/core';
-import type { Transaction as YodleeTransaction } from '../../types/yodlee-v1.0';
 import type {
   TransactionCollection,
   TransactionOrderedCollection,
@@ -22,83 +19,6 @@ class TransactionFetcher extends ModelFetcher<
 > {
   static collectionName = 'Transactions';
   static modelName = 'Transaction';
-
-  async genOrderedCollectionForUser(
-    userID: ID,
-    limit: number = 20,
-  ): Promise<TransactionOrderedCollection> {
-    let query = this.__firebaseCollection
-      .where('userRef.refID')
-      .orderBy('transactionDate', 'desc')
-      .orderBy('id');
-    if (limit !== Infinity) {
-      query = query.limit(limit);
-    }
-    const snapshot = await query.get();
-
-    return Immutable.OrderedMap(
-      snapshot.docs.map(doc => {
-        const transaction = Transaction.fromRaw(doc.data());
-        return [transaction.id, transaction];
-      }),
-    );
-  }
-
-  async genOrderedCollectionForAccountLink(
-    accountLinkID: ID,
-    limit: number = 20,
-  ): Promise<TransactionOrderedCollection> {
-    let query = this.__firebaseCollection
-      .where('accountLinkRef.refID', '==', accountLinkID)
-      .orderBy('transactionDate', 'desc')
-      .orderBy('id');
-    if (limit !== Infinity) {
-      query = query.limit(limit);
-    }
-    const snapshot = await query.get();
-
-    return Immutable.OrderedMap(
-      snapshot.docs.map(doc => {
-        const transaction = Transaction.fromRaw(doc.data());
-        return [transaction.id, transaction];
-      }),
-    );
-  }
-
-  async genOrderedCollectionForAccount(
-    accountID: ID,
-    limit: number = 20,
-  ): Promise<TransactionOrderedCollection> {
-    let query = this.__firebaseCollection
-      .where('accountRef.refID', '==', accountID)
-      // Transaction dates are rounded to the day, so we sort by createdDate as
-      // well as a fallback.
-      .orderBy('transactionDate', 'desc')
-      .orderBy('id');
-    if (limit !== Infinity) {
-      query = query.limit(limit);
-    }
-    const snapshot = await query.get();
-
-    return Immutable.OrderedMap(
-      snapshot.docs.map(doc => {
-        const transaction = Transaction.fromRaw(doc.data());
-        return [transaction.id, transaction];
-      }),
-    );
-  }
-
-  async genForYodleeTransaction(
-    yodleeTransaction: YodleeTransaction,
-  ): Promise<Transaction | null> {
-    const snapshot = await this.__firebaseCollection
-      .where('sourceOfTruth.type', '==', 'YODLEE')
-      .where('sourceOfTruth.value.id', '==', yodleeTransaction.id)
-      .get();
-    return snapshot.docs[0] && snapshot.docs[0].exists
-      ? Transaction.fromRaw(snapshot.docs[0].data())
-      : null;
-  }
 }
 
 export default new TransactionFetcher(Transaction);
