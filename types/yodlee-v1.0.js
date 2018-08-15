@@ -289,7 +289,7 @@ export type LoginField$Option = {|
   +id: Long | string,
   +isOptional: boolean,
   +name: string,
-  +option: Array<LoginFieldOptionItem>
+  +option: Array<LoginFieldOptionItem>,
   +type: 'option',
   +value: string,
   +valueEditable: 'true' | 'false',
