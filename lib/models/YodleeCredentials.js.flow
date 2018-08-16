@@ -1,5 +1,7 @@
 /* @flow */
 
+import uuid from 'uuid/v4';
+
 import { Model } from './Model';
 
 import type Immutable from 'immutable';
@@ -42,6 +44,23 @@ export default class YodleeCredentials extends Model<
   // ---------------------------------------------------------------------------
   // CREATORS (custom)
   // ---------------------------------------------------------------------------
+  static fromLoginNameAndPassword(
+    loginName: string,
+    password: string,
+  ): YodleeCredentials {
+    const id = uuid();
+    const now = new Date();
+
+    return this.fromRaw({
+      createdAt: now,
+      id,
+      loginName,
+      modelType: 'YodleeCredentials',
+      password,
+      type: 'MODEL',
+      updatedAt: now,
+    });
+  }
 
   // ---------------------------------------------------------------------------
   // ORIGINAL GETTERS (boilerplate)
