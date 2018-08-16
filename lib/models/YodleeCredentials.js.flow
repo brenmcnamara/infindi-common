@@ -1,36 +1,74 @@
 /* @flow */
 
-import invariant from 'invariant';
+import { Model } from './Model';
 
-import { getFirebaseAdminOrClient } from '../config';
-
-/**
- * NOTE: THIS DATA IS HIGHLY SENSITIVE AND SHOULD NEVER BE SENT ACROSS ANY
- * NETWORK REQUEST. FOR INTERNAL USE ONLY.
- */
+import type Immutable from 'immutable';
 
 import type { ID, ModelStub } from '../../types/core';
 
-export type YodleeCredentials = ModelStub<'YodleeCredentials'> & {
-  +id: ID,
+export type YodleeCredentialsRaw = ModelStub<'YodleeCredentials'> & {
   +loginName: string,
   +password: string,
 };
 
-export function getYodleeCredentialsCollection() {
-  return getFirebaseAdminOrClient()
-    .firestore()
-    .collection('YodleeCredentials');
+export type YodleeCredentialsCollection = Immutable.Map<ID, YodleeCredentials>;
+// eslint-disable-next-line flowtype/generic-spacing
+export type YodleeCredentialsOrderedCollection = Immutable.OrderedMap<
+  ID,
+  YodleeCredentials,
+>;
+
+// -----------------------------------------------------------------------------
+//
+// MODEL
+//
+// -----------------------------------------------------------------------------
+
+/**
+ * Core object representing a user and his / her data.
+ */
+export default class YodleeCredentials extends Model<
+  'YodleeCredentials',
+  YodleeCredentialsRaw,
+> {
+  // ---------------------------------------------------------------------------
+  // EXTENDING MODEL (boilerplate)
+  // ---------------------------------------------------------------------------
+  static collectionName = 'YodleeCredentials';
+  static modelName = 'YodleeCredentials';
+
+  __raw: YodleeCredentialsRaw; // TODO: Why do I need to define this?
+
+  // ---------------------------------------------------------------------------
+  // CREATORS (custom)
+  // ---------------------------------------------------------------------------
+
+  // ---------------------------------------------------------------------------
+  // ORIGINAL GETTERS (boilerplate)
+  // ---------------------------------------------------------------------------
+  get loginName(): string {
+    return this.__raw.loginName;
+  }
+
+  get password(): string {
+    return this.__raw.password;
+  }
+
+  // ---------------------------------------------------------------------------
+  // COMPUTED GETTERS (custom)
+  // ---------------------------------------------------------------------------
+
+  // ---------------------------------------------------------------------------
+  // ORIGINAL SETTERS (boilerplate)
+  // ---------------------------------------------------------------------------
+
+  // ---------------------------------------------------------------------------
+  // COMPUTED SETTERS (custom)
+  // ---------------------------------------------------------------------------
 }
 
-export function genFetchYodleeCredentials(
-  userID: ID,
-): Promise<YodleeCredentials> {
-  return getYodleeCredentialsCollection()
-    .doc(userID)
-    .get()
-    .then(doc => {
-      invariant(doc.exists, 'Yodlee Credentials not found for user %s', userID);
-      return doc.data();
-    });
-}
+// -----------------------------------------------------------------------------
+//
+// UTILITIES
+//
+// -----------------------------------------------------------------------------
