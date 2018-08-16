@@ -58,6 +58,18 @@ export class ModelFetcher<
       .then(doc => (doc.exists ? this._Ctor.fromRaw(doc.data()) : null));
   }
 
+  async genNullthrows(id: ID): Promise<TModel> {
+    const model = await this.gen(id);
+    if (!model) {
+      const { modelName } = this.constructor;
+      throw FindiError.fromRaw({
+        errorCode: 'CORE / RESOURCE_NOT_FOUND',
+        errorMessage: `Could not find ${modelName} with id ${id}`,
+      });
+    }
+    return model;
+  }
+
   async genSingleQuery(query: ModelSingleQuery): Promise<TModel | null> {
     // NOTE: Assuming firebase collection for now.
     const snapshot = await query.get();
@@ -87,18 +99,6 @@ export class ModelFetcher<
         return [model.id, model];
       }),
     );
-  }
-
-  async genNullthrows(id: ID): Promise<TModel> {
-    const model = await this.gen(id);
-    if (!model) {
-      const { modelName } = this.constructor;
-      throw FindiError.fromRaw({
-        errorCode: 'CORE / RESOURCE_NOT_FOUND',
-        errorMessage: `Could not find ${modelName} with id ${id}`,
-      });
-    }
-    return model;
   }
 
   genExists(id: ID): Promise<boolean> {
