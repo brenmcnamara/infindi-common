@@ -11,7 +11,8 @@ export type ErrorCode =
   | 'CORE / PERMISSION_DENIED'
   | 'CORE / NETWORK_ERROR'
   | 'CORE / RESOURCE_NOT_FOUND'
-  | 'CORE / UNKNOWN_ERROR';
+  | 'CORE / UNKNOWN_ERROR'
+  | 'CORE / VALIDATION_ERROR';
 
 export type FindiErrorRaw = {|
   +errorCode: ErrorCode,
