@@ -17,6 +17,7 @@ export type ErrorCode =
 export type FindiErrorRaw = {|
   +errorCode: ErrorCode,
   +errorMessage: string,
+  +errorStack?: string,
 |};
 
 export default class FindiError {
@@ -111,7 +112,8 @@ export default class FindiError {
     if (entity instanceof Error) {
       return this.fromRaw({
         errorCode: 'CORE / LOGICAL_ERROR',
-        errorMessage: `${entity.toString()}\n${entity.stack}`,
+        errorMessage: entity.toString(),
+        errorStack: entity.stack,
       });
     }
 
@@ -139,6 +141,10 @@ export default class FindiError {
 
   get errorMessage(): string {
     return this._raw.errorMessage;
+  }
+
+  get errorStack(): string | typeof undefined {
+    return this._raw.errorStack;
   }
 
   toRaw(): FindiErrorRaw {
