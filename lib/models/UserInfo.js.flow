@@ -1,7 +1,5 @@
 /* @flow */
 
-import uuid from 'uuid/v4';
-
 import { Model } from './Model';
 
 import type Immutable from 'immutable';
@@ -46,8 +44,7 @@ export default class UserInfo extends Model<'UserInfo', UserInfoRaw> {
   // ---------------------------------------------------------------------------
   // CREATORS (custom)
   // ---------------------------------------------------------------------------
-  static fromSignUpForm(signUpForm: SignUpForm): UserInfo {
-    const id = uuid();
+  static fromSignUpForm(id: ID, signUpForm: SignUpForm): UserInfo {
     const now = new Date();
 
     return this.fromRaw({
