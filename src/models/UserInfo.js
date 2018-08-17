@@ -1,10 +1,13 @@
 /* @flow */
 
+import uuid from 'uuid/v4';
+
 import { Model } from './Model';
 
 import type Immutable from 'immutable';
 
 import type { ID, ModelStub } from '../../types/core';
+import type { SignUpForm } from './Auth';
 
 // -----------------------------------------------------------------------------
 //
@@ -43,6 +46,22 @@ export default class UserInfo extends Model<'UserInfo', UserInfoRaw> {
   // ---------------------------------------------------------------------------
   // CREATORS (custom)
   // ---------------------------------------------------------------------------
+  static fromSignUpForm(signUpForm: SignUpForm): UserInfo {
+    const id = uuid();
+    const now = new Date();
+
+    return this.fromRaw({
+      createdAt: now,
+      firstName: signUpForm.firstName,
+      id,
+      isAdmin: false,
+      isTestUser: signUpForm.isTestUser,
+      lastName: signUpForm.lastName,
+      modelType: 'UserInfo',
+      type: 'MODEL',
+      updatedAt: now,
+    });
+  }
 
   // ---------------------------------------------------------------------------
   // ORIGINAL GETTERS (boilerplate)
