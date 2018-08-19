@@ -109,20 +109,20 @@ export default class FindiError {
       });
     }
 
-    if (entity instanceof Error) {
-      return this.fromRaw({
-        errorCode: 'CORE / LOGICAL_ERROR',
-        errorMessage: entity.toString(),
-        errorStack: entity.stack,
-      });
-    }
-
     if (isMaybeFirebaseError(entity)) {
       return this.fromFirebaseError(entity);
     }
 
     if (isMaybeYodleeError(entity)) {
       return this.fromYodleeError(entity);
+    }
+
+    if (entity instanceof Error) {
+      return this.fromRaw({
+        errorCode: 'CORE / LOGICAL_ERROR',
+        errorMessage: entity.toString(),
+        errorStack: entity.stack,
+      });
     }
 
     // I have no idea what error this is...
