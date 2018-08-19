@@ -31,6 +31,11 @@ export default class FindiError {
     return new FindiError(raw);
   }
 
+  // TODO: FIREBASE_DEPENDENCY
+  static isMaybeFirebaseError = isMaybeFirebaseError;
+  // TODO: YODLEE_DEPENDENCY
+  static isMaybeYodleeError = isMaybeYodleeError;
+
   // https://firebase.google.com/docs/reference/js/firebase.auth.Error
   static fromFirebaseError(error: Object): FindiError {
     let errorCode;
