@@ -73,7 +73,7 @@ export default class Account extends Model<'Account', AccountRaw> {
     userID: ID,
     isTestAccount: boolean = false,
   ): Account {
-    const raw = {
+    return Account.fromRaw({
       ...createModelStub('Account'),
       accountLinkRef: createPointer('AccountLink', accountLinkID),
       canDisplay: calculateCanDisplay(yodleeAccount),
@@ -83,8 +83,7 @@ export default class Account extends Model<'Account', AccountRaw> {
         value: yodleeAccount,
       },
       userRef: createPointer('User', userID),
-    };
-    return new Account(raw);
+    });
   }
 
   // ---------------------------------------------------------------------------

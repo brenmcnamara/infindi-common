@@ -77,9 +77,9 @@ export default class Transaction extends Model<'Transaction', TransactionRaw> {
     );
 
     return this.fromRaw({
+      ...createModelStub('Transaction'),
       accountLinkRef: createPointer('AccountLink', accountLinkID),
       accountRef: createPointer('Account', accountID),
-      ...createModelStub('Transaction'),
       sourceOfTruth: {
         type: 'YODLEE',
         value: yodleeTransaction,
