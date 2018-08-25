@@ -23,6 +23,11 @@ export type ModelOrderedCollection<
   TModel: Model<TModelName, TRaw>,
 > = OrderedMap<ID, TModel>;
 
+export type ModelQuery =
+  | ModelCollectionQuery
+  | ModelOrderedCollectionQuery
+  | ModelSingleQuery;
+
 export type ModelCollectionQuery = {|
   +handle: Object,
   +type: 'COLLECTION_QUERY',

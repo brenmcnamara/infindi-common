@@ -3,7 +3,7 @@
 import Account from './Account';
 
 import type { ID } from '../../types/core';
-import type { ModelCollectionQuery, ModelSingleQuery } from './Model';
+import type { ModelCollectionQuery } from './Model';
 
 const AccountQuery = {
   Collection: {
@@ -15,20 +15,20 @@ const AccountQuery = {
       );
       return { handle, type: 'COLLECTION_QUERY' };
     },
-  },
 
-  OrderedCollection: {},
-
-  Single: {
-    forUser(userID: ID): ModelSingleQuery {
+    forUser(userID: ID): ModelCollectionQuery {
       const handle = Account.FirebaseCollectionUNSAFE.where(
         'userRef.refID',
         '==',
         userID,
       );
-      return { handle, type: 'SINGLE_QUERY' };
+      return { handle, type: 'COLLECTION_QUERY' };
     },
   },
+
+  OrderedCollection: {},
+
+  Single: {},
 };
 
 export default AccountQuery;
