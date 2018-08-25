@@ -16,7 +16,7 @@ const TransactionQuery = {
       accountID: ID,
       limit: number = DEFAULT_TRANSACTION_LIMIT,
     ): ModelOrderedCollectionQuery {
-      let query = Transaction.FirebaseCollectionUNSAFE.where(
+      let handle = Transaction.FirebaseCollectionUNSAFE.where(
         'accountRef.refID',
         '==',
         accountID,
@@ -27,18 +27,18 @@ const TransactionQuery = {
         // often ties when sorting by transaction date, which messes with paging.
         .orderBy('id');
 
-      if (query) {
-        query = query.limit(limit);
+      if (limit !== Infinity) {
+        handle = handle.limit(limit);
       }
 
-      return query;
+      return { handle, type: 'ORDERED_COLLECTION_QUERY' };
     },
 
     forAccountLink(
       accountLinkID: ID,
       limit: number = DEFAULT_TRANSACTION_LIMIT,
     ): ModelOrderedCollectionQuery {
-      let query = Transaction.FirebaseCollectionUNSAFE.where(
+      let handle = Transaction.FirebaseCollectionUNSAFE.where(
         'accountLinkRef.refID',
         '==',
         accountLinkID,
@@ -46,32 +46,33 @@ const TransactionQuery = {
         .orderBy('transactionDate', 'desc')
         .orderBy('id');
       if (limit !== Infinity) {
-        query = query.limit(limit);
+        handle = handle.limit(limit);
       }
-      return query;
+      return { handle, type: 'ORDERED_COLLECTION_QUERY' };
     },
 
     forUser(
       userID: ID,
       limit: number = DEFAULT_TRANSACTION_LIMIT,
     ): ModelOrderedCollectionQuery {
-      let query = Transaction.FirebaseCollectionUNSAFE.where('userRef.refID')
+      let handle = Transaction.FirebaseCollectionUNSAFE.where('userRef.refID')
         .orderBy('transactionDate', 'desc')
         .orderBy('id');
       if (limit !== Infinity) {
-        query = query.limit(limit);
+        handle = handle.limit(limit);
       }
-      return query;
+      return { handle, type: 'ORDERED_COLLECTION_QUERY' };
     },
   },
 
   Single: {
     forYodleeTransaction(yodleeTransactionID: Long): ModelSingleQuery {
-      return Transaction.FirebaseCollectionUNSAFE.where(
+      const handle = Transaction.FirebaseCollectionUNSAFE.where(
         'sourceOfTruth.type',
         '==',
         'YODLEE',
       ).where('sourceOfTruth.value.id', '==', yodleeTransactionID);
+      return { handle, type: 'SINGLE_QUERY' };
     },
   },
 };

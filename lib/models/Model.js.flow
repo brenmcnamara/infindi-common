@@ -23,9 +23,20 @@ export type ModelOrderedCollection<
   TModel: Model<TModelName, TRaw>,
 > = OrderedMap<ID, TModel>;
 
-export type ModelCollectionQuery = Object;
-export type ModelOrderedCollectionQuery = Object;
-export type ModelSingleQuery = Object;
+export type ModelCollectionQuery = {|
+  +handle: Object,
+  +type: 'COLLECTION_QUERY',
+|};
+
+export type ModelOrderedCollectionQuery = {|
+  +handle: Object,
+  +type: 'ORDERED_COLLECTION_QUERY',
+|};
+
+export type ModelSingleQuery = {|
+  +handle: Object,
+  +type: 'SINGLE_QUERY',
+|};
 
 const BATCH_LIMIT = 100;
 
@@ -72,14 +83,14 @@ export class ModelFetcher<
 
   async genSingleQuery(query: ModelSingleQuery): Promise<TModel | null> {
     // NOTE: Assuming firebase collection for now.
-    const snapshot = await query.get();
+    const snapshot = await query.handle.get();
     const doc = snapshot.docs[0];
     return doc && doc.exists ? this._Ctor.fromRaw(doc.data()) : null;
   }
 
   async genCollectionQuery(query: ModelCollectionQuery): Promise<TCollection> {
     // NOTE: Assuming firebase collection for now.
-    const snapshot = await query.get();
+    const snapshot = await query.handle.get();
     return Immutable.Map(
       snapshot.docs.map(doc => {
         const model: TModel = this._Ctor.fromRaw(doc.data());
@@ -92,7 +103,7 @@ export class ModelFetcher<
     query: ModelOrderedCollectionQuery,
   ): Promise<TOrderedCollection> {
     // NOTE: Assuming firebase collection for now.
-    const snapshot = await query.get();
+    const snapshot = await query.handle.get();
     return Immutable.OrderedMap(
       snapshot.docs.map(doc => {
         const model: TModel = this._Ctor.fromRaw(doc.data());

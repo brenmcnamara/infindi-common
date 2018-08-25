@@ -8,11 +8,12 @@ import type { ModelCollectionQuery, ModelSingleQuery } from './Model';
 const AccountLinkQuery = {
   Collection: {
     forUser(userID: ID): ModelCollectionQuery {
-      return AccountLink.FirebaseCollectionUNSAFE.where(
+      const handle = AccountLink.FirebaseCollectionUNSAFE.where(
         'userRef.refID',
         '==',
         userID,
       );
+      return { handle, type: 'COLLECTION_QUERY' };
     },
   },
 
@@ -20,12 +21,12 @@ const AccountLinkQuery = {
 
   Single: {
     forUserAndProvider(userID: ID, providerID: ID): ModelSingleQuery {
-      return AccountLink.FirebaseCollectionUNSAFE.where(
+      const handle = AccountLink.FirebaseCollectionUNSAFE.where(
         'userRef.refID',
         '==',
         userID,
-      )
-        .where('providerRef.refID', '==', providerID);
+      ).where('providerRef.refID', '==', providerID);
+      return { handle, type: 'SINGLE_QUERY' };
     },
   },
 };
