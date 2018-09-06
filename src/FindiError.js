@@ -38,6 +38,8 @@ export default class FindiError {
 
   // https://firebase.google.com/docs/reference/js/firebase.auth.Error
   static fromFirebaseError(error: Object): FindiError {
+    // TODO: Fill in firestore error handling:
+    // https://firebase.google.com/docs/reference/js/firebase.firestore.FirestoreError
     let errorCode;
     switch (error.code) {
       case 'auth/app-deleted':
