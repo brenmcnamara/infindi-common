@@ -109,12 +109,11 @@ export class ModelFetcher<
   ): Promise<TOrderedCollection> {
     // NOTE: Assuming firebase collection for now.
     const snapshot = await query.handle.get();
-    return Immutable.OrderedMap(
-      snapshot.docs.map(doc => {
-        const model: TModel = this._Ctor.fromRaw(doc.data());
-        return [model.id, model];
-      }),
-    );
+    // $FlowFixMe - Immutable is being stupid.
+    return Immutable.OrderedMap(snapshot.docs.map(doc => {
+      const model: TModel = this._Ctor.fromRaw(doc.data());
+      return [model.id, model];
+    }));
   }
 
   genExists(id: ID): Promise<boolean> {
