@@ -12,10 +12,7 @@ const TransactionQuery = {
   Collection: {},
 
   OrderedCollection: {
-    forAccount(
-      accountID: ID,
-      limit: number = DEFAULT_TRANSACTION_LIMIT,
-    ): ModelOrderedCollectionQuery {
+    forAccount(accountID: ID): ModelOrderedCollectionQuery {
       let handle = Transaction.FirebaseCollectionUNSAFE.where(
         'accountRef.refID',
         '==',
@@ -27,17 +24,10 @@ const TransactionQuery = {
         // often ties when sorting by transaction date, which messes with paging.
         .orderBy('id');
 
-      if (limit !== Infinity) {
-        handle = handle.limit(limit);
-      }
-
       return { handle, type: 'ORDERED_COLLECTION_QUERY' };
     },
 
-    forAccountLink(
-      accountLinkID: ID,
-      limit: number = DEFAULT_TRANSACTION_LIMIT,
-    ): ModelOrderedCollectionQuery {
+    forAccountLink(accountLinkID: ID): ModelOrderedCollectionQuery {
       let handle = Transaction.FirebaseCollectionUNSAFE.where(
         'accountLinkRef.refID',
         '==',
@@ -45,22 +35,13 @@ const TransactionQuery = {
       )
         .orderBy('transactionDate', 'desc')
         .orderBy('id');
-      if (limit !== Infinity) {
-        handle = handle.limit(limit);
-      }
       return { handle, type: 'ORDERED_COLLECTION_QUERY' };
     },
 
-    forUser(
-      userID: ID,
-      limit: number = DEFAULT_TRANSACTION_LIMIT,
-    ): ModelOrderedCollectionQuery {
+    forUser(userID: ID): ModelOrderedCollectionQuery {
       let handle = Transaction.FirebaseCollectionUNSAFE.where('userRef.refID')
         .orderBy('transactionDate', 'desc')
         .orderBy('id');
-      if (limit !== Infinity) {
-        handle = handle.limit(limit);
-      }
       return { handle, type: 'ORDERED_COLLECTION_QUERY' };
     },
   },
