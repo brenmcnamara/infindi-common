@@ -13,7 +13,7 @@ import type { OrderedMap } from 'immutable';
 
 export type Long = number;
 
-export type Date = string;
+export type YMDString = string; // Year-Month-Day string
 
 export type DateTime = string;
 
@@ -59,7 +59,7 @@ export type Provider = {|
   +isAutoRefreshEnabled: boolean,
   +isProviderOwned: boolean,
   +languageISOCode: string,
-  +lastModified: DateTime,
+  +lastModified: YMDString,
   +loginForm: LoginForm,
   +loginURL: string,
   +logo: string,
@@ -81,7 +81,7 @@ export type ProviderOrderedCollection = OrderedMap<ID, Provider>;
 // -----------------------------------------------------------------------------
 
 export type ProviderAccount = {|
-  +createdDate: Date,
+  +createdDate: YMDString,
   +dataset: Dataset,
   +aggregationSource: string,
   +id: Long,
@@ -134,7 +134,7 @@ export type Account$CreditCard = {|
   +balance: Money,
   +classification: AccountClassification,
   +container: 'creditCard',
-  +dueDate: Date,
+  +dueDate: YMDString,
   +isAsset: number,
 |};
 
@@ -149,15 +149,15 @@ export type Account$Insurance = {|
   +classification: AccountClassification,
   +container: 'insurance',
   +deathBenefit: Money,
-  +dueDate: Date,
-  +expirationDate: Date,
+  +dueDate: YMDString,
+  +expirationDate: YMDString,
   +isAsset: boolean,
   +premium: Money,
-  +policyEffectiveDate: Date,
-  +policyFromDate: Date,
+  +policyEffectiveDate: YMDString,
+  +policyFromDate: YMDString,
   +policyStatus: string,
   +policyTerm: InsurancePolicyTerm,
-  +policyToDate: Date,
+  +policyToDate: YMDString,
   +remainingBalance: Money,
 |};
 
@@ -184,7 +184,7 @@ export type Account$Loan = {|
   +classification: AccountClassification,
   +collateral: Money,
   +container: 'loan',
-  +dueDate: Date,
+  +dueDate: YMDString,
   +interestPaidLastYear: Money,
   +interestPaidYTD: Money,
   +interestRateType: 'UNKNOWN' | 'OTHER' | 'FIXED' | 'VARIABLE',
@@ -199,7 +199,7 @@ export type Account$Bill = {|
   +balance: Money,
   +classification: AccountClassification,
   +container: 'bill',
-  +dueDate: Date,
+  +dueDate: YMDString,
   +isAsset: boolean,
 |};
 
@@ -244,17 +244,17 @@ export type Transaction$Bank = {|
   +baseType: 'CREDIT' | 'DEBIT',
   +checkNumber?: string,
   +container: 'bank',
-  +date: Date,
+  +date: YMDString,
   +description: TransactionDescription,
   +id: Long,
   +isManual: boolean,
   +merchant: Merchant,
   +parentCategoryId: Long,
-  +postDate: Date,
+  +postDate: YMDString,
   +runningBalance: Money,
   +status: TransactionStatus,
   +subtype: string,
-  +transactionDate: Date,
+  +transactionDate: YMDString,
   +type: string,
 |};
 
@@ -264,17 +264,17 @@ export type Transaction$CreditCard = {|
   +baseType: 'CREDIT' | 'DEBIT',
   +categoryType: string,
   +container: 'creditCard',
-  +date: Date,
+  +date: YMDString,
   +description: TransactionDescription,
   +id: Long,
   +isManual: boolean,
   +merchant: Merchant,
   +parentCategoryId: Long,
-  +postDate: Date,
+  +postDate: YMDString,
   +runningBalance: Money,
   +status: TransactionStatus,
   +subtype: string,
-  +transactionDate: Date,
+  +transactionDate: YMDString,
   +type: string,
 |};
 
@@ -289,7 +289,7 @@ export type Transaction$Investment = {|
   +container: 'investment',
   +cusipNumber: string,
   +description: TransactionDescription,
-  +date: Date,
+  +date: YMDString,
   +highLevelCategoryId: Long,
   +holdingDescription: string,
   +id: Long,
@@ -299,10 +299,10 @@ export type Transaction$Investment = {|
   +price: Money,
   +quantity: number,
   +runningBalance: Money,
-  +settleDate: Date,
+  +settleDate: YMDString,
   +status: TransactionStatus,
   +symbol: string,
-  +transactionDate: Date,
+  +transactionDate: YMDString,
   +type: string,
 |};
 
@@ -314,16 +314,16 @@ export type Transaction$Insurance = {|
   +categorySource: string,
   +categoryType: string,
   +container: 'insurance',
-  +date: Date,
+  +date: YMDString,
   +description: TransactionDescription,
   +highLevelCategoryId: Long,
   +id: Long,
   +isManual: boolean,
   +merchant: Merchant,
   +parentCategoryId: Long,
-  +postDate: Date,
+  +postDate: YMDString,
   +status: TransactionStatus,
-  +transactionDate: Date,
+  +transactionDate: YMDString,
 |};
 
 export type Transaction$Loan = {|
@@ -334,7 +334,7 @@ export type Transaction$Loan = {|
   +categorySource: string,
   +categoryType: string,
   +container: 'loan',
-  +date: Date,
+  +date: YMDString,
   +description: TransactionDescription,
   +highLevelCategoryId: Long,
   +id: Long,
@@ -342,10 +342,10 @@ export type Transaction$Loan = {|
   +isManual: boolean,
   +merchant: Merchant,
   +parentCategoryId: Long,
-  +postDate: Date,
+  +postDate: YMDString,
   +principal: Money,
   +status: TransactionStatus,
-  +transactionDate: Date,
+  +transactionDate: YMDString,
 |};
 
 export type Transaction$Reward = {|
