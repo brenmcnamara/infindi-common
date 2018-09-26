@@ -1,8 +1,5 @@
 /* @flow */
 
-import type { ID } from './core';
-import type { OrderedMap } from 'immutable';
-
 // TODO: ON ACCOUNT "faceAmount"
 
 // -----------------------------------------------------------------------------
@@ -48,7 +45,7 @@ export type Profile = Object;
 //
 // -----------------------------------------------------------------------------
 
-export type Provider = {|
+export type ProviderWithLoginForm = {|
   +authType: string,
   +baseURL: string,
   +countryISOCode: string,
@@ -72,7 +69,28 @@ export type Provider = {|
   +status: string,
 |};
 
-export type ProviderOrderedCollection = OrderedMap<ID, Provider>;
+export type Provider = {|
+  +authType: string,
+  +baseURL: string,
+  +countryISOCode: string,
+  +dataset: Dataset,
+  +help: string,
+  +id: Long,
+  +isAddedByUser: boolean,
+  +isAutoRefreshEnabled: boolean,
+  +isProviderOwned: boolean,
+  +languageISOCode: string,
+  +lastModified: YMDString,
+  +loginURL: string,
+  +logo: string,
+  +numberOfTransactionDays: number,
+  +oAuthSite: string | boolean,
+  +primaryLanguageISOCode: string,
+  +Priority: string,
+  +favicon: string,
+  +name: string,
+  +status: string,
+|};
 
 // -----------------------------------------------------------------------------
 //
