@@ -8,7 +8,7 @@ import { Model } from './Model';
 import type Immutable from 'immutable';
 
 import type { ID, ModelStub } from '../../types/core';
-import type { ProviderFull as YodleeProviderFull } from '../../types/yodlee-v1.0';
+import type { Provider as YodleeProvider } from '../../types/yodlee-v1.1';
 
 // -----------------------------------------------------------------------------
 //
@@ -17,15 +17,12 @@ import type { ProviderFull as YodleeProviderFull } from '../../types/yodlee-v1.0
 // -----------------------------------------------------------------------------
 
 export type ProviderRaw = ModelStub<'Provider'> & {
-  isDeprecated: boolean,
-  quirkCount: number,
-  quirks: Array<string>,
   sourceOfTruth: SourceOfTruth,
 };
 
 export type SourceOfTruth = {|
   +type: 'YODLEE',
-  +value: YodleeProviderFull,
+  +value: YodleeProvider,
 |};
 
 export type ProviderCollection = Immutable.Map<ID, Provider>;
@@ -54,13 +51,10 @@ export default class Provider extends Model<'Provider', ProviderRaw> {
   // CREATORS (custom)
   // ---------------------------------------------------------------------------
 
-  static create(sourceOfTruth: SourceOfTruth, quirks: Array<string>): Provider {
+  static create(sourceOfTruth: SourceOfTruth): Provider {
     const raw = {
       ...createModelStub('Provider'),
       id: calculateIDFromSourceOfTruth(sourceOfTruth),
-      isDeprecated: false,
-      quirkCount: quirks.length,
-      quirks,
       sourceOfTruth,
     };
     return Provider.fromRaw(raw);
@@ -69,18 +63,6 @@ export default class Provider extends Model<'Provider', ProviderRaw> {
   // ---------------------------------------------------------------------------
   // ORIGINAL GETTERS (boilerplate)
   // ---------------------------------------------------------------------------
-  get isDeprecated(): boolean {
-    return this.__raw.isDeprecated;
-  }
-
-  get quirkCount(): number {
-    return this.__raw.quirkCount;
-  }
-
-  get quirks(): Array<string> {
-    return this.__raw.quirks;
-  }
-
   get sourceOfTruth(): SourceOfTruth {
     return this.__raw.sourceOfTruth;
   }
