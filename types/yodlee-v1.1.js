@@ -99,6 +99,18 @@ export type ProviderAccount = {|
 //
 // -----------------------------------------------------------------------------
 
+export type AccountContainer =
+  | 'bank'
+  | 'creditCard'
+  | 'insurance'
+  | 'investment'
+  | 'loan'
+  | 'bill'
+  | 'reward'
+  | 'realEstate'
+  | 'otherAssets'
+  | 'otherLiabilities';
+
 export type Account =
   | Account$Bank
   | Account$Bill
